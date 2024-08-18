@@ -33,14 +33,6 @@ func mergeOptions(mergeInto *Options, newValues Options) {
 		mergeInto.ServerAddress = newValues.ServerAddress
 	}
 
-	if mergeInto.ShortenerBaseURL == "" && newValues.ShortenerBaseURL != "" {
-		mergeInto.ShortenerBaseURL = newValues.ShortenerBaseURL
-	}
-
-	if mergeInto.FileStoragePath == "" && newValues.FileStoragePath != "" {
-		mergeInto.FileStoragePath = newValues.FileStoragePath
-	}
-
 	if mergeInto.DBConnectionString == "" && newValues.DBConnectionString != "" {
 		mergeInto.DBConnectionString = newValues.DBConnectionString
 	}
