@@ -126,7 +126,7 @@ func ReadFlagsServer(args []string) *OptionsServer {
 		ServerAddress:   OptionalString{Value: "localhost:8080", BeenSet: false},
 		StoreInterval:   OptionalSecondsDuration{Duration: time.Second * 300, BeenSet: false},
 		FileStoragePath: OptionalString{Value: "storage.dat", BeenSet: false},
-		DatabaseDSN: OptionalString{Value: "postgres://default_user:default_password@localhost:5432/metrics_db?sslmode=disable",
+		DatabaseDSN: OptionalString{Value: "postgres://default_user:default_password@localhost:5432/gophemart_db?sslmode=disable",
 			BeenSet: false},
 		MigrationsFolder: OptionalString{Value: "./migrations", BeenSet: false},
 		Restore:          OptionalBool{Value: true, BeenSet: false},
