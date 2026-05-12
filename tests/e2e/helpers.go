@@ -2,8 +2,8 @@ package e2e
 
 import (
 	"context"
-	"log"
 	"net/http"
+	"sync"
 	"testing"
 	"time"
 
@@ -15,31 +15,47 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	e2eServerOnce sync.Once
+	e2eServerCfg  *config.OptionsServer
+	e2eServerErr  error
+)
+
 func initE2ETestServer(t *testing.T) *config.OptionsServer {
+	t.Helper()
+
+	e2eServerOnce.Do(func() {
+		e2eServerCfg, e2eServerErr = startE2ETestServer(t)
+	})
+
+	require.NoError(t, e2eServerErr)
+
+	return e2eServerCfg
+}
+
+func startE2ETestServer(t *testing.T) (*config.OptionsServer, error) {
 	t.Helper()
 
 	lg, err := zap.NewProduction()
 	if err != nil {
-		log.Fatalf("failed to initialize lg: %v", err)
+		return nil, err
 	}
-	t.Cleanup(func() {
-		_ = lg.Sync()
-	})
 
-	ctx, cancel := context.WithCancel(context.Background())
-	t.Cleanup(cancel)
-
+	ctx := context.Background()
 	cfg := config.ReadFlagsServer(nil)
 
 	wrappedDB := repository.InitTestPostgresStorage(t, cfg)
 
 	go func() {
 		err := run.Run(ctx, wrappedDB, cfg, lg)
-		require.NoError(t, err)
+		if err != nil {
+			lg.Error("e2e server stopped", zap.Error(err))
+		}
 	}()
+
 	waitForServer(t, cfg)
 
-	return cfg
+	return cfg, nil
 }
 
 func waitForServer(t *testing.T, cfg *config.OptionsServer) {
