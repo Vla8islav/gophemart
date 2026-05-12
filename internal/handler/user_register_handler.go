@@ -3,10 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"io"
+	"mime"
 	"net/http"
 
-	"github.com/Vla8islav/gophemart/internal/models"
-	"go.uber.org/zap"
+	"github.com/Vla8islav/gophemart/internal/domain"
 )
 
 /*
@@ -37,26 +37,15 @@ Content-Type: application/json
 500 — внутренняя ошибка сервера.
 */
 
-func (h *Handler) writeBadRequest(w http.ResponseWriter, msg string) {
-	h.logger.Error("bad request", zap.String("msg", msg))
-	http.Error(w, msg, http.StatusBadRequest)
-}
-
-func (h *Handler) writeMethodNotAllowed(w http.ResponseWriter, msg string) {
-	h.logger.Error("method not allowed: ", zap.String("msg", msg))
-	http.Error(w, msg, http.StatusMethodNotAllowed)
-}
-
 func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
-
-	w.WriteHeader(http.StatusNotImplemented)
 
 	if r.Method != http.MethodPost {
 		h.writeMethodNotAllowed(w, "only POST method is allowed")
 		return
 	}
 
-	if r.Header.Get("Content-Type") != "application/json" {
+	mimeType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if mimeType != "application/json" {
 		h.writeBadRequest(w, "only application/json content type is supported")
 		return
 	}
@@ -67,13 +56,17 @@ func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var requestBodySerialised []models.User
+	var requestBodySerialised domain.UserRegisterRequest
 	err = json.Unmarshal(requestBody, &requestBodySerialised)
 	if err != nil {
 		h.writeBadRequest(w, "couldn't parse requestBody with metrics :"+err.Error())
 		return
 	}
 
-	h.service.Ping()
-
+	_, err = h.service.CreateUser(r.Context(), requestBodySerialised)
+	if err != nil {
+		h.writeInternalServerError(w, err.Error())
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
