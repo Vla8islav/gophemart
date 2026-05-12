@@ -1,22 +1,19 @@
-package main
+package repository
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/Vla8islav/gophemart/internal/config"
 	"github.com/Vla8islav/gophemart/internal/domain"
-	"github.com/Vla8islav/gophemart/internal/repository"
-	"go.uber.org/zap"
 )
 
-func initDB(ctx context.Context, currentConfig *config.OptionsServer, logger *zap.Logger) (domain.GophemartRepository, error) {
+func WrapPostgres(currentConfig *config.OptionsServer) (domain.GophemartRepository, error) {
 	var db domain.GophemartRepository
 	var err error
 
 	// Case 1
 	if currentConfig.DatabaseDSN.BeenSet {
-		db, err = repository.NewPostgresStorage(currentConfig, currentConfig.MigrationsFolder.Value)
+		db, err = NewPostgresStorage(currentConfig, currentConfig.MigrationsFolder.Value)
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize metrics repository: %w", err)
 		}
