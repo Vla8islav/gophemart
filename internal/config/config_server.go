@@ -11,8 +11,10 @@ import (
 
 // OptionsServer TODO: implement a clean option separation
 type OptionsServer struct {
-	ServerAddress OptionalString `env:"RUN_ADDRESS"`
-	DatabaseURI   OptionalString `env:"DATABASE_URI"`
+	ServerAddress  OptionalString `env:"RUN_ADDRESS"`
+	AccrualAddress OptionalString `env:"ACCRUAL_SYSTEM_ADDRESS"`
+
+	DatabaseURI OptionalString `env:"DATABASE_URI"`
 
 	MigrationsFolder OptionalString `env:"MIGRATIONS_FOLDER"`
 }
@@ -25,6 +27,10 @@ func logSetFlagsServer(options *OptionsServer) {
 
 	if options.ServerAddress.BeenSet {
 		setFlags = append(setFlags, fmt.Sprintf("-a=%s", options.ServerAddress.Value))
+	}
+
+	if options.AccrualAddress.BeenSet {
+		setFlags = append(setFlags, fmt.Sprintf("-a=%s", options.AccrualAddress.Value))
 	}
 
 	if options.DatabaseURI.BeenSet {
@@ -53,6 +59,10 @@ func logSetEnvServer(options *OptionsServer) {
 
 	if options.ServerAddress.BeenSet {
 		setEnv = append(setEnv, fmt.Sprintf("ADDRESS=%s", options.ServerAddress.Value))
+	}
+
+	if options.AccrualAddress.BeenSet {
+		setEnv = append(setEnv, fmt.Sprintf("ACCRUAL_ADDRESS=%s", options.AccrualAddress.Value))
 	}
 
 	if options.DatabaseURI.BeenSet {
@@ -84,7 +94,8 @@ func ReadFlagsServer(args []string) *OptionsServer {
 	logSetEnvServer(envOptions)
 
 	finalOptions := OptionsServer{
-		ServerAddress: OptionalString{Value: "localhost:8080", BeenSet: false},
+		ServerAddress:  OptionalString{Value: "localhost:8080", BeenSet: false},
+		AccrualAddress: OptionalString{Value: "", BeenSet: false},
 		DatabaseURI: OptionalString{Value: "postgres://default_user:default_password@localhost:5432/gophemart_db?sslmode=disable",
 			BeenSet: false},
 		MigrationsFolder: OptionalString{Value: "./migrations", BeenSet: false},
@@ -132,7 +143,8 @@ func getOptionsServer(args []string) (*OptionsServer, error) {
 	fs := flag.NewFlagSet("metrics-aggregator-server", flag.ContinueOnError)
 	fs.SetOutput(io.Discard) // optional: silence flag errors in tests
 
-	fs.Var(&opt.ServerAddress, "a", "адрес и порт запуска сервера")
+	fs.Var(&opt.ServerAddress, "a", "адрес и порт запуска этого сервера")
+	fs.Var(&opt.AccrualAddress, "r", "адрес и порт запуска сервера рассчета баллов лояльности")
 
 	fs.Var(&opt.DatabaseURI, "d", "connection string/dsn для postgres базы данных")
 
