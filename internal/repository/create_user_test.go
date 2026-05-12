@@ -2,18 +2,13 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"testing"
-	"time"
 
 	"github.com/Vla8islav/gophemart/internal/config"
+	"github.com/Vla8islav/gophemart/internal/helpers"
 	"github.com/Vla8islav/gophemart/internal/models"
 	"github.com/stretchr/testify/require"
 )
-
-func uniqueLogin(prefix string) string {
-	return fmt.Sprintf("%s-%d", prefix, time.Now().UnixNano())
-}
 
 func TestPostgresStorage_CreateUser(t *testing.T) {
 	cfg := config.ReadFlagsServer(nil)
@@ -22,7 +17,7 @@ func TestPostgresStorage_CreateUser(t *testing.T) {
 	ctx := context.Background()
 
 	user := models.User{
-		Login:    uniqueLogin("create-user-test"),
+		Login:    helpers.UniqueLogin("create-user-test"),
 		Password: "hashed-password",
 	}
 
@@ -42,7 +37,8 @@ func TestPostgresStorage_CreateUser(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, user.Login, login)
-	require.Equal(t, user.Password, passwordHash)
+	require.NotEqual(t, user.Password, passwordHash)
+	require.NoError(t, helpers.CompareHashAndPassword(passwordHash, user.Password))
 }
 
 func TestPostgresStorage_CreateUser_DuplicateLogin(t *testing.T) {
@@ -52,7 +48,7 @@ func TestPostgresStorage_CreateUser_DuplicateLogin(t *testing.T) {
 	ctx := context.Background()
 
 	user := models.User{
-		Login:    uniqueLogin("duplicate-user-test"),
+		Login:    helpers.UniqueLogin("duplicate-user-test"),
 		Password: "hashed-password",
 	}
 
@@ -65,18 +61,18 @@ func TestPostgresStorage_CreateUser_DuplicateLogin(t *testing.T) {
 	require.Zero(t, duplicateUserID)
 }
 
-func TestPostgresStorage_CreateUser_AllowsSamePasswordHash(t *testing.T) {
+func TestPostgresStorage_CreateUser_HashesSamePasswordDifferently(t *testing.T) {
 	cfg := config.ReadFlagsServer(nil)
 	storage := InitTestPostgresStorage(t, cfg)
 
 	ctx := context.Background()
 
 	firstUser := models.User{
-		Login:    uniqueLogin("same-password-user-1"),
+		Login:    helpers.UniqueLogin("same-password-user-1"),
 		Password: "same-hashed-password",
 	}
 	secondUser := models.User{
-		Login:    uniqueLogin("same-password-user-2"),
+		Login:    helpers.UniqueLogin("same-password-user-2"),
 		Password: "same-hashed-password",
 	}
 
@@ -88,4 +84,29 @@ func TestPostgresStorage_CreateUser_AllowsSamePasswordHash(t *testing.T) {
 	require.NoError(t, err)
 	require.Greater(t, secondUserID, int64(0))
 	require.NotEqual(t, firstUserID, secondUserID)
+
+	var firstPasswordHash string
+	var secondPasswordHash string
+
+	err = storage.db.QueryRowContext(ctx,
+		`SELECT password_hash
+		 FROM users
+		 WHERE id = $1`,
+		firstUserID,
+	).Scan(&firstPasswordHash)
+	require.NoError(t, err)
+
+	err = storage.db.QueryRowContext(ctx,
+		`SELECT password_hash
+		 FROM users
+		 WHERE id = $1`,
+		secondUserID,
+	).Scan(&secondPasswordHash)
+	require.NoError(t, err)
+
+	require.NotEqual(t, firstUser.Password, firstPasswordHash)
+	require.NotEqual(t, secondUser.Password, secondPasswordHash)
+	require.NotEqual(t, firstPasswordHash, secondPasswordHash)
+	require.NoError(t, helpers.CompareHashAndPassword(firstPasswordHash, firstUser.Password))
+	require.NoError(t, helpers.CompareHashAndPassword(secondPasswordHash, secondUser.Password))
 }
