@@ -13,7 +13,7 @@ func NewRouter(handler *Handler) http.Handler {
 
 	r.Get("/api/ping", handler.DBPing)
 
-	r.Post("/api/user/register", handler.DummyHandler)
+	r.Post("/api/user/register", handler.UserRegisterHandler)
 
 	r.Post("/api/user/login", handler.DummyHandler)
 

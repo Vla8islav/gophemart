@@ -2,11 +2,13 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"mime"
 	"net/http"
 
 	"github.com/Vla8islav/gophemart/internal/domain"
+	"github.com/Vla8islav/gophemart/internal/repository"
 )
 
 /*
@@ -63,10 +65,24 @@ func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if requestBodySerialised.Login == "" {
+		h.writeBadRequest(w, "login cannot be empty")
+		return
+	}
+	if requestBodySerialised.Password == "" {
+		h.writeBadRequest(w, "password cannot be empty")
+		return
+	}
+
 	_, err = h.service.CreateUser(r.Context(), requestBodySerialised)
+	if errors.Is(repository.ErrUserAlreadyExists, err) {
+		h.writeAlreadyExists(w, err.Error())
+		return
+	}
 	if err != nil {
 		h.writeInternalServerError(w, err.Error())
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 }

@@ -16,6 +16,11 @@ func NewHandler(service domain.GophemartService, logger *zap.Logger) *Handler {
 	return &Handler{service: service, logger: logger}
 }
 
+func (h *Handler) writeAlreadyExists(w http.ResponseWriter, msg string) {
+	h.logger.Error("already exists", zap.String("msg", msg))
+	http.Error(w, msg, http.StatusConflict)
+}
+
 func (h *Handler) writeInternalServerError(w http.ResponseWriter, msg string) {
 	h.logger.Error("internal server error", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusInternalServerError)

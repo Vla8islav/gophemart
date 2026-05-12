@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"github.com/Vla8islav/gophemart/internal/domain"
 )
 
-func (s *PostgresStorage) CreateUser(ctx context.Context, user CreateUserParams) (int64, error) {
+func (s *PostgresStorage) CreateUser(ctx context.Context, user domain.CreateUserParams) (int64, error) {
 	var userID int64
 
 	err := s.withRetry(ctx, func() error {

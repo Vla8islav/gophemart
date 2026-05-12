@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/Vla8islav/gophemart/internal/domain"
+	"github.com/Vla8islav/gophemart/internal/repository"
 	"github.com/stretchr/testify/require"
 )
 
@@ -121,6 +122,28 @@ func TestUserRegisterHandler_InvalidJSON(t *testing.T) {
 	require.Equal(t, http.StatusBadRequest, res.StatusCode)
 }
 
+func TestUserRegisterHandler_EmptyPassword(t *testing.T) {
+	service := fakeRegisterService{
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
+			t.Fatal("CreateUser should not be called")
+			return 0, nil
+		},
+	}
+	h := newTestRegisterHandler(service)
+
+	body := bytes.NewBufferString(`{"login":"test-login","password":""}`)
+	req := httptest.NewRequest(http.MethodPost, "/api/user/register", body)
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	h.UserRegisterHandler(w, req)
+
+	res := w.Result()
+	defer res.Body.Close()
+
+	require.Equal(t, http.StatusBadRequest, res.StatusCode)
+}
+
 func TestUserRegisterHandler_ServiceError(t *testing.T) {
 	service := fakeRegisterService{
 		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
@@ -140,4 +163,25 @@ func TestUserRegisterHandler_ServiceError(t *testing.T) {
 	defer res.Body.Close()
 
 	require.Equal(t, http.StatusInternalServerError, res.StatusCode)
+}
+
+func TestUserRegisterHandler_UserAlreadyExists(t *testing.T) {
+	service := fakeRegisterService{
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
+			return 0, repository.ErrUserAlreadyExists
+		},
+	}
+	h := newTestRegisterHandler(service)
+
+	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)
+	req := httptest.NewRequest(http.MethodPost, "/api/user/register", body)
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	h.UserRegisterHandler(w, req)
+
+	res := w.Result()
+	defer res.Body.Close()
+
+	require.Equal(t, http.StatusConflict, res.StatusCode)
 }
