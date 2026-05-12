@@ -54,6 +54,6 @@ func SetupTestPostgres(t *testing.T, cfg *config.OptionsServer) {
 	dsn, err := pgContainer.ConnectionString(ctx, "sslmode=disable")
 	require.NoError(t, err, "failed to get connection string")
 
-	cfg.DatabaseDSN.Value = dsn
-	cfg.DatabaseDSN.BeenSet = true
+	cfg.DatabaseURI.Value = dsn
+	cfg.DatabaseURI.BeenSet = true
 }

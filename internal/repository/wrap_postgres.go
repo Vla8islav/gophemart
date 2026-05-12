@@ -12,7 +12,7 @@ func WrapPostgres(currentConfig *config.OptionsServer) (domain.GophemartReposito
 	var err error
 
 	// Case 1
-	if currentConfig.DatabaseDSN.BeenSet {
+	if currentConfig.DatabaseURI.BeenSet {
 		db, err = NewPostgresStorage(currentConfig, currentConfig.MigrationsFolder.Value)
 		if err != nil {
 			return nil, fmt.Errorf("failed to initialize metrics repository: %w", err)
