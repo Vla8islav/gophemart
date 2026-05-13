@@ -9,6 +9,7 @@ import (
 
 type fakeRegisterService struct {
 	createUserFunc func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error)
+	loginUserFunc  func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error)
 }
 
 func (s fakeRegisterService) Ping(ctx context.Context) error {
@@ -17,6 +18,10 @@ func (s fakeRegisterService) Ping(ctx context.Context) error {
 
 func (s fakeRegisterService) CreateUser(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
 	return s.createUserFunc(ctx, req)
+}
+
+func (s fakeRegisterService) LoginUser(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
+	return s.loginUserFunc(ctx, req)
 }
 
 func newTestRegisterHandler(service fakeRegisterService) *Handler {

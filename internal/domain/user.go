@@ -13,6 +13,7 @@ type CreateUserParams struct {
 }
 
 type User struct {
-	ID    int64
-	Login string
+	ID           int64
+	Login        string
+	PasswordHash string
 }

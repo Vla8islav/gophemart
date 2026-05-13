@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/Vla8islav/gophemart/internal/domain"
 )
 

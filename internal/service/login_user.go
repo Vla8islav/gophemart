@@ -8,29 +8,23 @@ import (
 	"github.com/Vla8islav/gophemart/internal/helpers"
 )
 
-func (m metricsService) LoginUser(ctx context.Context,
-	userRegReq domain.UserRegisterRequest) (*domain.AuthResult, error) {
-	hash, err := helpers.HashPassword(userRegReq.Password)
+func (m metricsService) LoginUser(ctx context.Context, userRegReq domain.UserLoginRequest) (*domain.AuthResult, error) {
+	user, err := m.repository.GetUserByLogin(ctx, userRegReq.Login)
 	if err != nil {
-		return nil, fmt.Errorf("failed to calculate the hash for the new user %s: %w", userRegReq.Login, err)
-	}
-	createUserParams := domain.CreateUserParams{
-		Login:        userRegReq.Login,
-		PasswordHash: hash,
-	}
-	userID, err := m.repository.CreateUser(ctx, createUserParams)
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to create new user: %w", err)
+		return nil, fmt.Errorf("couldn't find user by user %s: %w", userRegReq.Login, err)
 	}
 
-	token, err := helpers.CreateAuthToken(userID, m.authSecret)
+	if !helpers.CheckPassword(userRegReq.Password, user.PasswordHash) {
+		return nil, fmt.Errorf("invalid password for user %s", userRegReq.Login)
+	}
+
+	token, err := helpers.CreateAuthToken(user.ID, m.authSecret)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create auth token for user %d: %w", userID, err)
+		return nil, fmt.Errorf("failed to create auth token for user %d: %w", user.ID, err)
 	}
 
 	return &domain.AuthResult{
 		Token:  token,
-		UserID: userID,
+		UserID: user.ID,
 	}, err
 }
