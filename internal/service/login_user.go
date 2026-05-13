@@ -15,7 +15,7 @@ func (m metricsService) LoginUser(ctx context.Context, userRegReq domain.UserLog
 	}
 
 	if !helpers.CheckPassword(userRegReq.Password, user.PasswordHash) {
-		return nil, fmt.Errorf("invalid password for user %s", userRegReq.Login)
+		return nil, fmt.Errorf("invalid user credentials for user %s: %w", userRegReq.Login, ErrInvalidUserCredentials)
 	}
 
 	token, err := helpers.CreateAuthToken(user.ID, m.authSecret)
