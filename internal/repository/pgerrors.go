@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-// честно спер из учебного проекта
+var ErrUserAlreadyExists = errors.New("user already exists")
 
 // ErrorClassification тип для классификации ошибок
 type PGErrorClassification int

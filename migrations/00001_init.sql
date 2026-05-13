@@ -13,7 +13,7 @@ CREATE TABLE orders
     number      TEXT        NOT NULL UNIQUE,
     user_id     BIGINT      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     status      TEXT        NOT NULL DEFAULT 'NEW' CHECK ( status IN ('NEW', 'PROCESSING', 'INVALID', 'PROCESSED') ),
-    accrual     BIGINT,
+    accrual     BIGINT CHECK (accrual IS NULL OR accrual >= 0),
     uploaded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 

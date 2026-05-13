@@ -42,11 +42,11 @@ func NewPostgresStorage(config *config.OptionsServer, migrationsFolder string) (
 	if config == nil {
 		return nil, fmt.Errorf("config is nil")
 	}
-	if !config.DatabaseDSN.BeenSet {
+	if !config.DatabaseURI.BeenSet {
 		return nil, fmt.Errorf("database DSN wasn't set")
 	}
 
-	dsn := config.DatabaseDSN.Value
+	dsn := config.DatabaseURI.Value
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
@@ -69,14 +69,4 @@ func NewPostgresStorage(config *config.OptionsServer, migrationsFolder string) (
 	}
 
 	return &storage, nil
-}
-
-func (s *PostgresStorage) Ping(ctx context.Context) error {
-
-	// verify connection
-	if err := s.db.PingContext(ctx); err != nil {
-		return fmt.Errorf("couldn't ping postgres db: %w", err)
-	}
-
-	return nil
 }
