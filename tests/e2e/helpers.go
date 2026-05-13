@@ -15,47 +15,118 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	e2eServerOnce sync.Once
-	e2eServerCfg  *config.OptionsServer
-	e2eServerErr  error
-)
+type e2eServerManager struct {
+	mu sync.Mutex
+
+	cfg  *config.OptionsServer
+	stop func()
+	err  error
+
+	refCount     int
+	destroyTimer *time.Timer
+}
+
+var e2eServer e2eServerManager
 
 func initE2ETestServer(t *testing.T) *config.OptionsServer {
 	t.Helper()
 
-	e2eServerOnce.Do(func() {
-		e2eServerCfg, e2eServerErr = startE2ETestServer(t)
-	})
+	cfg, release, err := e2eServer.acquire(t)
+	require.NoError(t, err)
 
-	require.NoError(t, e2eServerErr)
+	t.Cleanup(release)
 
-	return e2eServerCfg
+	return cfg
 }
 
-func startE2ETestServer(t *testing.T) (*config.OptionsServer, error) {
+func (m *e2eServerManager) acquire(t *testing.T) (*config.OptionsServer, func(), error) {
+	t.Helper()
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.destroyTimer != nil {
+		m.destroyTimer.Stop()
+		m.destroyTimer = nil
+	}
+
+	if m.cfg == nil {
+		cfg, stop, err := startE2ETestServer(t)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		m.cfg = cfg
+		m.stop = stop
+		m.err = nil
+	}
+
+	m.refCount++
+
+	released := false
+	release := func() {
+		m.mu.Lock()
+		defer m.mu.Unlock()
+
+		if released {
+			return
+		}
+		released = true
+
+		m.refCount--
+		if m.refCount != 0 {
+			return
+		}
+
+		m.destroyTimer = time.AfterFunc(time.Second, func() {
+			m.mu.Lock()
+			defer m.mu.Unlock()
+
+			if m.refCount != 0 {
+				return
+			}
+
+			if m.stop != nil {
+				m.stop()
+			}
+
+			m.cfg = nil
+			m.stop = nil
+			m.err = nil
+			m.destroyTimer = nil
+		})
+	}
+
+	return m.cfg, release, m.err
+}
+
+func startE2ETestServer(t *testing.T) (*config.OptionsServer, func(), error) {
 	t.Helper()
 
 	lg, err := zap.NewProduction()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
 	cfg := config.ReadFlagsServer(nil)
 
 	wrappedDB := repository.InitTestPostgresStorage(t, cfg)
 
 	go func() {
 		err := run.Run(ctx, wrappedDB, cfg, lg)
-		if err != nil {
+		if err != nil && ctx.Err() == nil {
 			lg.Error("e2e server stopped", zap.Error(err))
 		}
 	}()
 
 	waitForServer(t, cfg)
 
-	return cfg, nil
+	stop := func() {
+		cancel()
+	}
+
+	return cfg, stop, nil
 }
 
 func waitForServer(t *testing.T, cfg *config.OptionsServer) {

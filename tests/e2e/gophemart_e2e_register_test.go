@@ -11,7 +11,6 @@ import (
 )
 
 func TestPing(t *testing.T) {
-	t.Parallel()
 
 	cfg := initE2ETestServer(t)
 
@@ -25,7 +24,6 @@ func TestPing(t *testing.T) {
 }
 
 func TestRegisterUserDuplicateLogin(t *testing.T) {
-	t.Parallel()
 
 	cfg := initE2ETestServer(t)
 
@@ -46,7 +44,6 @@ func TestRegisterUserDuplicateLogin(t *testing.T) {
 }
 
 func TestRegisterUserRejectsEmptyPassword(t *testing.T) {
-	t.Parallel()
 
 	cfg := initE2ETestServer(t)
 
