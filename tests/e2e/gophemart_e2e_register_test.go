@@ -37,6 +37,7 @@ func TestRegisterUserDuplicateLogin(t *testing.T) {
 	require.NoError(t, err)
 	defer firstResp.Body.Close()
 	require.Equal(t, http.StatusOK, firstResp.StatusCode)
+	require.NotEmpty(t, firstResp.Cookies(), "successful registration should set auth cookie")
 
 	secondResp, err := http.Post(registerURL, "application/json", bytes.NewReader(body))
 	require.NoError(t, err)

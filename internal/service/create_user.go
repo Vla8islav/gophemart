@@ -18,6 +18,11 @@ func (m metricsService) CreateUser(ctx context.Context, userRegReq domain.UserRe
 		PasswordHash: hash,
 	}
 	userID, err := m.repository.CreateUser(ctx, createUserParams)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new user: %w", err)
+	}
+
 	token, err := helpers.CreateAuthToken(userID, m.authSecret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create auth token for user %d: %w", userID, err)

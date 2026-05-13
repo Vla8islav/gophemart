@@ -76,7 +76,7 @@ func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authResult, err := h.service.CreateUser(r.Context(), requestBodySerialised)
-	if errors.Is(repository.ErrUserAlreadyExists, err) {
+	if errors.Is(err, repository.ErrUserAlreadyExists) {
 		h.writeAlreadyExists(w, err.Error())
 		return
 	}

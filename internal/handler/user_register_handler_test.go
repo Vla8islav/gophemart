@@ -15,11 +15,14 @@ import (
 
 func TestUserRegisterHandler_Success(t *testing.T) {
 	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
 			require.Equal(t, "test-login", req.Login)
 			require.Equal(t, "test-password", req.Password)
 
-			return 1, nil
+			return &domain.AuthResult{
+				Token:  "test-token",
+				UserID: 1,
+			}, nil
 		},
 	}
 	h := newTestRegisterHandler(service)
@@ -39,8 +42,11 @@ func TestUserRegisterHandler_Success(t *testing.T) {
 
 func TestUserRegisterHandler_AllowsJSONContentTypeWithCharset(t *testing.T) {
 	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
-			return 1, nil
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
+			return &domain.AuthResult{
+				Token:  "test-token",
+				UserID: 1,
+			}, nil
 		},
 	}
 	h := newTestRegisterHandler(service)
@@ -60,9 +66,9 @@ func TestUserRegisterHandler_AllowsJSONContentTypeWithCharset(t *testing.T) {
 
 func TestUserRegisterHandler_MethodNotAllowed(t *testing.T) {
 	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
 			t.Fatal("CreateUser should not be called")
-			return 0, nil
+			return nil, nil
 		},
 	}
 	h := newTestRegisterHandler(service)
@@ -80,9 +86,9 @@ func TestUserRegisterHandler_MethodNotAllowed(t *testing.T) {
 
 func TestUserRegisterHandler_BadContentType(t *testing.T) {
 	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
 			t.Fatal("CreateUser should not be called")
-			return 0, nil
+			return nil, nil
 		},
 	}
 	h := newTestRegisterHandler(service)
@@ -102,9 +108,9 @@ func TestUserRegisterHandler_BadContentType(t *testing.T) {
 
 func TestUserRegisterHandler_InvalidJSON(t *testing.T) {
 	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
 			t.Fatal("CreateUser should not be called")
-			return 0, nil
+			return nil, nil
 		},
 	}
 	h := newTestRegisterHandler(service)
@@ -124,9 +130,9 @@ func TestUserRegisterHandler_InvalidJSON(t *testing.T) {
 
 func TestUserRegisterHandler_EmptyPassword(t *testing.T) {
 	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
 			t.Fatal("CreateUser should not be called")
-			return 0, nil
+			return nil, nil
 		},
 	}
 	h := newTestRegisterHandler(service)
@@ -146,8 +152,8 @@ func TestUserRegisterHandler_EmptyPassword(t *testing.T) {
 
 func TestUserRegisterHandler_ServiceError(t *testing.T) {
 	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
-			return 0, errors.New("service error")
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
+			return nil, errors.New("service error")
 		},
 	}
 	h := newTestRegisterHandler(service)
@@ -167,8 +173,8 @@ func TestUserRegisterHandler_ServiceError(t *testing.T) {
 
 func TestUserRegisterHandler_UserAlreadyExists(t *testing.T) {
 	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
-			return 0, repository.ErrUserAlreadyExists
+		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
+			return nil, repository.ErrUserAlreadyExists
 		},
 	}
 	h := newTestRegisterHandler(service)
