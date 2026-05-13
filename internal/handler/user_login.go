@@ -74,8 +74,8 @@ func (h *Handler) UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authResult, err := h.service.LoginUser(r.Context(), requestBodySerialised)
-	if errors.Is(err, repository.ErrUserAlreadyExists) {
-		h.writeAlreadyExists(w, err.Error())
+	if errors.Is(err, repository.ErrUserNotFound) {
+		h.writeUnauthorised(w, err.Error())
 		return
 	}
 
