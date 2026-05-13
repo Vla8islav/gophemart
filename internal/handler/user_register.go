@@ -61,7 +61,7 @@ func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var requestBodySerialised domain.UserRegisterRequest
 	err = json.Unmarshal(requestBody, &requestBodySerialised)
 	if err != nil {
-		h.writeBadRequest(w, "couldn't parse requestBody with metrics :"+err.Error())
+		h.writeBadRequest(w, "couldn't parse requestBody:"+err.Error())
 		return
 	}
 

@@ -5,6 +5,8 @@ type UserRegisterRequest struct {
 	Password string `json:"password"`
 }
 
+type UserLoginRequest UserRegisterRequest
+
 type CreateUserParams struct {
 	Login        string
 	PasswordHash string

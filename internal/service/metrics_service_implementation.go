@@ -17,7 +17,3 @@ func NewMetricsService(repo domain.GophemartRepository, authSecret string) domai
 		authSecret: []byte(authSecret),
 	}
 }
-
-func (m metricsService) Ping(ctx context.Context) error {
-	return m.repository.Ping(ctx)
-}
