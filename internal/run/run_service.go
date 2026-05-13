@@ -16,7 +16,7 @@ import (
 
 func Run(ctx context.Context, db domain.GophemartRepository, cfg *config.OptionsServer, logger *zap.Logger) error {
 
-	srvApp := service.NewMetricsService(db)
+	srvApp := service.NewMetricsService(db, cfg.AuthTokenSecret.Value)
 	h := handler.NewHandler(srvApp, logger)
 	r := handler.NewRouter(h)
 

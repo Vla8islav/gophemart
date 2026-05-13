@@ -69,20 +69,31 @@ func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		h.writeBadRequest(w, "login cannot be empty")
 		return
 	}
+
 	if requestBodySerialised.Password == "" {
 		h.writeBadRequest(w, "password cannot be empty")
 		return
 	}
 
-	_, err = h.service.CreateUser(r.Context(), requestBodySerialised)
+	authResult, err := h.service.CreateUser(r.Context(), requestBodySerialised)
 	if errors.Is(repository.ErrUserAlreadyExists, err) {
 		h.writeAlreadyExists(w, err.Error())
 		return
 	}
+
 	if err != nil {
 		h.writeInternalServerError(w, err.Error())
 		return
 	}
+
+	// write an auth cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "auth_token",
+		Value:    authResult.Token,
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
 
 	w.WriteHeader(http.StatusOK)
 }

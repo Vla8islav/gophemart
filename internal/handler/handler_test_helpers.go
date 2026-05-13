@@ -8,14 +8,14 @@ import (
 )
 
 type fakeRegisterService struct {
-	createUserFunc func(ctx context.Context, req domain.UserRegisterRequest) (int64, error)
+	createUserFunc func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error)
 }
 
 func (s fakeRegisterService) Ping(ctx context.Context) error {
 	return nil
 }
 
-func (s fakeRegisterService) CreateUser(ctx context.Context, req domain.UserRegisterRequest) (int64, error) {
+func (s fakeRegisterService) CreateUser(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
 	return s.createUserFunc(ctx, req)
 }
 

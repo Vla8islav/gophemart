@@ -29,11 +29,14 @@ func TestMetricsService_CreateUser(t *testing.T) {
 
 	service := metricsService{
 		repository: repository,
+		authSecret: []byte("test-secret"),
 	}
 
-	userID, err := service.CreateUser(ctx, userRegReq)
+	authResult, err := service.CreateUser(ctx, userRegReq)
 	require.NoError(t, err)
-	require.Equal(t, int64(123), userID)
+	require.NotNil(t, authResult)
+	require.Equal(t, int64(123), authResult.UserID)
+	require.NotEmpty(t, authResult.Token)
 }
 
 func TestMetricsService_CreateUser_HashesSamePasswordDifferently(t *testing.T) {
@@ -59,15 +62,20 @@ func TestMetricsService_CreateUser_HashesSamePasswordDifferently(t *testing.T) {
 
 	service := metricsService{
 		repository: repository,
+		authSecret: []byte("test-secret"),
 	}
 
-	firstUserID, err := service.CreateUser(ctx, firstReq)
+	firstAuthResult, err := service.CreateUser(ctx, firstReq)
 	require.NoError(t, err)
-	require.Equal(t, int64(1), firstUserID)
+	require.NotNil(t, firstAuthResult)
+	require.Equal(t, int64(1), firstAuthResult.UserID)
+	require.NotEmpty(t, firstAuthResult.Token)
 
-	secondUserID, err := service.CreateUser(ctx, secondReq)
+	secondAuthResult, err := service.CreateUser(ctx, secondReq)
 	require.NoError(t, err)
-	require.Equal(t, int64(2), secondUserID)
+	require.NotNil(t, secondAuthResult)
+	require.Equal(t, int64(2), secondAuthResult.UserID)
+	require.NotEmpty(t, secondAuthResult.Token)
 
 	require.Len(t, passwordHashes, 2)
 	require.NotEqual(t, firstReq.Password, passwordHashes[0])

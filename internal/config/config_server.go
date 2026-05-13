@@ -17,6 +17,8 @@ type OptionsServer struct {
 	DatabaseURI OptionalString `env:"DATABASE_URI"`
 
 	MigrationsFolder OptionalString `env:"MIGRATIONS_FOLDER"`
+
+	AuthTokenSecret OptionalString `env:"AUTH_TOKEN_SECRET"`
 }
 
 func logSetFlagsServer(options *OptionsServer) {
@@ -30,7 +32,7 @@ func logSetFlagsServer(options *OptionsServer) {
 	}
 
 	if options.AccrualAddress.BeenSet {
-		setFlags = append(setFlags, fmt.Sprintf("-a=%s", options.AccrualAddress.Value))
+		setFlags = append(setFlags, fmt.Sprintf("-r=%s", options.AccrualAddress.Value))
 	}
 
 	if options.DatabaseURI.BeenSet {
@@ -39,6 +41,10 @@ func logSetFlagsServer(options *OptionsServer) {
 
 	if options.MigrationsFolder.BeenSet {
 		setFlags = append(setFlags, fmt.Sprintf("-m=%s", options.MigrationsFolder.Value))
+	}
+
+	if options.AuthTokenSecret.BeenSet {
+		setFlags = append(setFlags, fmt.Sprintf("-s=%s", options.AuthTokenSecret.Value))
 	}
 
 	if len(setFlags) == 0 {
@@ -73,6 +79,10 @@ func logSetEnvServer(options *OptionsServer) {
 		setEnv = append(setEnv, fmt.Sprintf("MIGRATIONS_FOLDER=%s", options.MigrationsFolder.Value))
 	}
 
+	if options.AuthTokenSecret.BeenSet {
+		setEnv = append(setEnv, fmt.Sprintf("AUTH_TOKEN_SECRET=%s", options.AuthTokenSecret.Value))
+	}
+
 	if len(setEnv) == 0 {
 		log.Println("no environment variables were set")
 		return
@@ -99,6 +109,7 @@ func ReadFlagsServer(args []string) *OptionsServer {
 		DatabaseURI: OptionalString{Value: "postgres://default_user:default_password@localhost:5432/gophemart_db?sslmode=disable",
 			BeenSet: false},
 		MigrationsFolder: OptionalString{Value: "./migrations", BeenSet: false},
+		AuthTokenSecret:  OptionalString{Value: "super-duper-secret-dev-change-in-prod", BeenSet: false},
 	}
 
 	// env options are the priority
@@ -115,6 +126,11 @@ func mergeOptionsServer(mergeInto *OptionsServer, newValues OptionsServer) {
 		mergeInto.ServerAddress.BeenSet = true
 	}
 
+	if newValues.AccrualAddress.BeenSet {
+		mergeInto.AccrualAddress = newValues.AccrualAddress
+		mergeInto.AccrualAddress.BeenSet = true
+	}
+
 	if newValues.DatabaseURI.BeenSet {
 		mergeInto.DatabaseURI = newValues.DatabaseURI
 		mergeInto.DatabaseURI.BeenSet = true
@@ -123,6 +139,11 @@ func mergeOptionsServer(mergeInto *OptionsServer, newValues OptionsServer) {
 	if newValues.MigrationsFolder.BeenSet {
 		mergeInto.MigrationsFolder = newValues.MigrationsFolder
 		mergeInto.MigrationsFolder.BeenSet = true
+	}
+
+	if newValues.AuthTokenSecret.BeenSet {
+		mergeInto.AuthTokenSecret = newValues.AuthTokenSecret
+		mergeInto.AuthTokenSecret.BeenSet = true
 	}
 
 }
@@ -149,6 +170,7 @@ func getOptionsServer(args []string) (*OptionsServer, error) {
 	fs.Var(&opt.DatabaseURI, "d", "connection string/dsn для postgres базы данных")
 
 	fs.Var(&opt.MigrationsFolder, "m", "относительный путь до миграций, например ./migrations")
+	fs.Var(&opt.AuthTokenSecret, "s", "секретный ключ для генерации токенов авторизации")
 
 	if err := fs.Parse(args); err != nil {
 		return nil, err
