@@ -23,7 +23,7 @@ CREATE TABLE withdrawals
 (
     id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id      BIGINT      NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    order_number TEXT        NOT NULL,
+    order_number TEXT        NOT NULL UNIQUE,
     amount       BIGINT      NOT NULL CHECK ( amount > 0 ), -- cents --
     processed_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

@@ -2,19 +2,19 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
-	"io"
-	"mime"
 	"net/http"
 
 	"github.com/Vla8islav/gophemart/internal/domain"
-	"github.com/Vla8islav/gophemart/internal/repository"
+	"github.com/Vla8islav/gophemart/internal/helpers"
+	"github.com/Vla8islav/gophemart/internal/middlewares"
 )
 
 /*
 Хендлер: GET /api/user/balance
 
-Хендлер доступен только авторизованному пользователю. В ответе должны содержаться данные о текущей сумме баллов лояльности, а также сумме использованных за весь период регистрации баллов.
+Хендлер доступен только авторизованному пользователю.
+В ответе должны содержаться данные о текущей сумме баллов лояльности,
+а также сумме использованных за весь период регистрации баллов.
 
 Формат запроса:
 
@@ -46,54 +46,33 @@ func (h *Handler) UserBalanceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mimeType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if mimeType != "application/json" {
-		h.writeBadRequest(w, "only application/json content type is supported")
+	userID, ok := middlewares.UserIDFromContext(r.Context())
+	if !ok {
+		h.writeUnauthorised(w, "unauthorized")
 		return
 	}
 
-	requestBody, err := io.ReadAll(r.Body)
+	balance, err := h.service.GetUserBalance(r.Context(), userID)
 	if err != nil {
-		h.writeBadRequest(w, "failed to read request body: "+err.Error())
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	var requestBodySerialised domain.UserLoginRequest
-	err = json.Unmarshal(requestBody, &requestBodySerialised)
+	w.Header().Set("Content-Type", "application/json")
+	responseStruct := domain.UserBalanceResponse{
+		Current:   helpers.CentsToFloat(balance.Current),
+		Withdrawn: helpers.CentsToFloat(balance.Withdrawn),
+	}
+	response, err := json.Marshal(&responseStruct)
 	if err != nil {
-		h.writeBadRequest(w, "couldn't parse requestBody:"+err.Error())
+		h.writeInternalServerError(w, "couldn't encode the response "+err.Error())
 		return
 	}
-
-	if requestBodySerialised.Login == "" {
-		h.writeBadRequest(w, "login cannot be empty")
-		return
-	}
-
-	if requestBodySerialised.Password == "" {
-		h.writeBadRequest(w, "password cannot be empty")
-		return
-	}
-
-	authResult, err := h.service.LoginUser(r.Context(), requestBodySerialised)
-	if errors.Is(err, repository.ErrUserNotFound) {
-		h.writeUnauthorised(w, err.Error())
-		return
-	}
-
-	if err != nil {
-		h.writeInternalServerError(w, err.Error())
-		return
-	}
-
-	// write an auth cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:     "auth_token",
-		Value:    authResult.Token,
-		Path:     "/",
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-	})
-
 	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(response)
+	if err != nil {
+		h.writeInternalServerError(w, "couldn't write response"+err.Error())
+		return
+	}
+
 }
