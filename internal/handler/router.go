@@ -14,9 +14,7 @@ func NewRouter(h *Handler, cfg *config.OptionsServer) http.Handler {
 	r.Use(middleware.StripSlashes)
 
 	r.Get("/api/ping", h.DBPing)
-
 	r.Post("/api/user/register", h.UserRegisterHandler)
-
 	r.Post("/api/user/login", h.UserLoginHandler)
 
 	r.Group(func(r chi.Router) {
@@ -24,7 +22,7 @@ func NewRouter(h *Handler, cfg *config.OptionsServer) http.Handler {
 		r.Use(middlewares.WithAuth([]byte(cfg.AuthTokenSecret.Value)))
 
 		r.Post("/api/user/orders", h.DummyHandler)
-		r.Get("/api/user/balance", h.DummyHandler)
+		r.Get("/api/user/balance", h.UserBalanceHandler)
 		r.Post("/api/user/balance/withdraw", h.DummyHandler)
 		r.Get("/api/user/withdrawals", h.DummyHandler)
 	})
