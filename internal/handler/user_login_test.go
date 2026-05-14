@@ -2,35 +2,20 @@ package handler
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/Vla8islav/gophemart/internal/domain"
+	"github.com/Vla8islav/gophemart/internal/mocks"
 	"github.com/Vla8islav/gophemart/internal/repository"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
 )
 
-type fakeLoginService struct {
-	loginUserFunc func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error)
-}
-
-func (s fakeLoginService) Ping(ctx context.Context) error {
-	return nil
-}
-
-func (s fakeLoginService) CreateUser(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
-	return nil, nil
-}
-
-func (s fakeLoginService) LoginUser(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-	return s.loginUserFunc(ctx, req)
-}
-
-func newTestLoginHandler(service fakeLoginService) *Handler {
+func newTestLoginHandler(service domain.GophemartService) *Handler {
 	return &Handler{
 		service: service,
 		logger:  zap.NewNop(),
@@ -38,17 +23,21 @@ func newTestLoginHandler(service fakeLoginService) *Handler {
 }
 
 func TestUserLoginHandler_Success(t *testing.T) {
-	service := fakeLoginService{
-		loginUserFunc: func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-			require.Equal(t, "test-login", req.Login)
-			require.Equal(t, "test-password", req.Password)
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-			return &domain.AuthResult{
-				UserID: 123,
-				Token:  "test-token",
-			}, nil
-		},
-	}
+	service := mocks.NewMockGophemartService(ctrl)
+	service.EXPECT().
+		LoginUser(gomock.Any(), domain.UserLoginRequest{
+			Login:    "test-login",
+			Password: "test-password",
+		}).
+		Return(&domain.AuthResult{
+			UserID: 123,
+			Token:  "test-token",
+		}, nil)
+
 	h := newTestLoginHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)
@@ -73,11 +62,18 @@ func TestUserLoginHandler_Success(t *testing.T) {
 }
 
 func TestUserLoginHandler_AllowsJSONContentTypeWithCharset(t *testing.T) {
-	service := fakeLoginService{
-		loginUserFunc: func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-			return &domain.AuthResult{UserID: 123, Token: "test-token"}, nil
-		},
-	}
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+	service.EXPECT().
+		LoginUser(gomock.Any(), domain.UserLoginRequest{
+			Login:    "test-login",
+			Password: "test-password",
+		}).
+		Return(&domain.AuthResult{UserID: 123, Token: "test-token"}, nil)
+
 	h := newTestLoginHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)
@@ -94,12 +90,12 @@ func TestUserLoginHandler_AllowsJSONContentTypeWithCharset(t *testing.T) {
 }
 
 func TestUserLoginHandler_MethodNotAllowed(t *testing.T) {
-	service := fakeLoginService{
-		loginUserFunc: func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-			t.Fatal("LoginUser should not be called")
-			return nil, nil
-		},
-	}
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+
 	h := newTestLoginHandler(service)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/user/login", nil)
@@ -114,12 +110,12 @@ func TestUserLoginHandler_MethodNotAllowed(t *testing.T) {
 }
 
 func TestUserLoginHandler_BadContentType(t *testing.T) {
-	service := fakeLoginService{
-		loginUserFunc: func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-			t.Fatal("LoginUser should not be called")
-			return nil, nil
-		},
-	}
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+
 	h := newTestLoginHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)
@@ -136,12 +132,12 @@ func TestUserLoginHandler_BadContentType(t *testing.T) {
 }
 
 func TestUserLoginHandler_InvalidJSON(t *testing.T) {
-	service := fakeLoginService{
-		loginUserFunc: func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-			t.Fatal("LoginUser should not be called")
-			return nil, nil
-		},
-	}
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+
 	h := newTestLoginHandler(service)
 
 	body := bytes.NewBufferString(`{"login":`)
@@ -158,12 +154,12 @@ func TestUserLoginHandler_InvalidJSON(t *testing.T) {
 }
 
 func TestUserLoginHandler_EmptyLogin(t *testing.T) {
-	service := fakeLoginService{
-		loginUserFunc: func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-			t.Fatal("LoginUser should not be called")
-			return nil, nil
-		},
-	}
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+
 	h := newTestLoginHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"","password":"test-password"}`)
@@ -180,12 +176,12 @@ func TestUserLoginHandler_EmptyLogin(t *testing.T) {
 }
 
 func TestUserLoginHandler_EmptyPassword(t *testing.T) {
-	service := fakeLoginService{
-		loginUserFunc: func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-			t.Fatal("LoginUser should not be called")
-			return nil, nil
-		},
-	}
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+
 	h := newTestLoginHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":""}`)
@@ -202,11 +198,18 @@ func TestUserLoginHandler_EmptyPassword(t *testing.T) {
 }
 
 func TestUserLoginHandler_InvalidCredentials(t *testing.T) {
-	service := fakeLoginService{
-		loginUserFunc: func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-			return nil, repository.ErrUserNotFound
-		},
-	}
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+	service.EXPECT().
+		LoginUser(gomock.Any(), domain.UserLoginRequest{
+			Login:    "test-login",
+			Password: "wrong-password",
+		}).
+		Return(nil, repository.ErrUserNotFound)
+
 	h := newTestLoginHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"wrong-password"}`)
@@ -223,11 +226,18 @@ func TestUserLoginHandler_InvalidCredentials(t *testing.T) {
 }
 
 func TestUserLoginHandler_ServiceError(t *testing.T) {
-	service := fakeLoginService{
-		loginUserFunc: func(ctx context.Context, req domain.UserLoginRequest) (*domain.AuthResult, error) {
-			return nil, errors.New("service error")
-		},
-	}
+	t.Parallel()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+	service.EXPECT().
+		LoginUser(gomock.Any(), domain.UserLoginRequest{
+			Login:    "test-login",
+			Password: "test-password",
+		}).
+		Return(nil, errors.New("service error"))
+
 	h := newTestLoginHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)

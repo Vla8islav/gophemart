@@ -23,6 +23,7 @@ func newTestRegisterHandler(service domain.GophemartService) *Handler {
 }
 
 func TestUserRegisterHandler_Success(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -53,6 +54,7 @@ func TestUserRegisterHandler_Success(t *testing.T) {
 }
 
 func TestUserRegisterHandler_AllowsJSONContentTypeWithCharset(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -83,6 +85,7 @@ func TestUserRegisterHandler_AllowsJSONContentTypeWithCharset(t *testing.T) {
 }
 
 func TestUserRegisterHandler_MethodNotAllowed(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -102,6 +105,7 @@ func TestUserRegisterHandler_MethodNotAllowed(t *testing.T) {
 }
 
 func TestUserRegisterHandler_BadContentType(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -123,6 +127,7 @@ func TestUserRegisterHandler_BadContentType(t *testing.T) {
 }
 
 func TestUserRegisterHandler_InvalidJSON(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -144,6 +149,7 @@ func TestUserRegisterHandler_InvalidJSON(t *testing.T) {
 }
 
 func TestUserRegisterHandler_EmptyPassword(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -165,6 +171,7 @@ func TestUserRegisterHandler_EmptyPassword(t *testing.T) {
 }
 
 func TestUserRegisterHandler_ServiceError(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -192,6 +199,7 @@ func TestUserRegisterHandler_ServiceError(t *testing.T) {
 }
 
 func TestUserRegisterHandler_UserAlreadyExists(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 

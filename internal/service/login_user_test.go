@@ -7,42 +7,30 @@ import (
 
 	"github.com/Vla8islav/gophemart/internal/domain"
 	"github.com/Vla8islav/gophemart/internal/helpers"
+	"github.com/Vla8islav/gophemart/internal/mocks"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
-type fakeLoginUserRepository struct {
-	getUserByLoginFunc func(ctx context.Context, login string) (*domain.User, error)
-}
-
-func (r fakeLoginUserRepository) Ping(ctx context.Context) error {
-	return nil
-}
-
-func (r fakeLoginUserRepository) CreateUser(ctx context.Context, params domain.CreateUserParams) (int64, error) {
-	return 0, nil
-}
-
-func (r fakeLoginUserRepository) GetUserByLogin(ctx context.Context, login string) (*domain.User, error) {
-	return r.getUserByLoginFunc(ctx, login)
-}
-
 func TestMetricsService_LoginUser(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	ctx := context.Background()
 
 	passwordHash, err := helpers.HashPassword("test-password")
 	require.NoError(t, err)
 
-	repository := fakeLoginUserRepository{
-		getUserByLoginFunc: func(ctx context.Context, login string) (*domain.User, error) {
-			require.Equal(t, "test-login", login)
-
-			return &domain.User{
-				ID:           123,
-				Login:        "test-login",
-				PasswordHash: passwordHash,
-			}, nil
-		},
-	}
+	repository := mocks.NewMockGophemartRepository(ctrl)
+	repository.EXPECT().
+		GetUserByLogin(gomock.Any(), "test-login").
+		Return(&domain.User{
+			ID:           123,
+			Login:        "test-login",
+			PasswordHash: passwordHash,
+		}, nil)
 
 	service := metricsService{
 		repository: repository,
@@ -59,20 +47,24 @@ func TestMetricsService_LoginUser(t *testing.T) {
 }
 
 func TestMetricsService_LoginUser_InvalidPassword(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	ctx := context.Background()
 
 	passwordHash, err := helpers.HashPassword("test-password")
 	require.NoError(t, err)
 
-	repository := fakeLoginUserRepository{
-		getUserByLoginFunc: func(ctx context.Context, login string) (*domain.User, error) {
-			return &domain.User{
-				ID:           123,
-				Login:        "test-login",
-				PasswordHash: passwordHash,
-			}, nil
-		},
-	}
+	repository := mocks.NewMockGophemartRepository(ctrl)
+	repository.EXPECT().
+		GetUserByLogin(gomock.Any(), "test-login").
+		Return(&domain.User{
+			ID:           123,
+			Login:        "test-login",
+			PasswordHash: passwordHash,
+		}, nil)
 
 	service := metricsService{
 		repository: repository,
@@ -87,13 +79,17 @@ func TestMetricsService_LoginUser_InvalidPassword(t *testing.T) {
 }
 
 func TestMetricsService_LoginUser_UserNotFound(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	ctx := context.Background()
 
-	repository := fakeLoginUserRepository{
-		getUserByLoginFunc: func(ctx context.Context, login string) (*domain.User, error) {
-			return nil, ErrInvalidUserCredentials
-		},
-	}
+	repository := mocks.NewMockGophemartRepository(ctrl)
+	repository.EXPECT().
+		GetUserByLogin(gomock.Any(), "missing-login").
+		Return(nil, ErrInvalidUserCredentials)
 
 	service := metricsService{
 		repository: repository,
@@ -108,14 +104,18 @@ func TestMetricsService_LoginUser_UserNotFound(t *testing.T) {
 }
 
 func TestMetricsService_LoginUser_RepositoryError(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	ctx := context.Background()
 	repositoryErr := errors.New("repository error")
 
-	repository := fakeLoginUserRepository{
-		getUserByLoginFunc: func(ctx context.Context, login string) (*domain.User, error) {
-			return nil, repositoryErr
-		},
-	}
+	repository := mocks.NewMockGophemartRepository(ctrl)
+	repository.EXPECT().
+		GetUserByLogin(gomock.Any(), "test-login").
+		Return(nil, repositoryErr)
 
 	service := metricsService{
 		repository: repository,
