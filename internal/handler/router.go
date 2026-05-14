@@ -21,7 +21,7 @@ func NewRouter(h *Handler, cfg *config.OptionsServer) http.Handler {
 
 		r.Use(middlewares.WithAuth([]byte(cfg.AuthTokenSecret.Value)))
 
-		r.Post("/api/user/orders", h.DummyHandler)
+		r.Post("/api/user/orders", h.UserOrdersPostHandler)
 		r.Get("/api/user/orders", h.DummyHandler)
 
 		r.Get("/api/user/balance", h.UserBalanceHandler)
