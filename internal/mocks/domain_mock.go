@@ -56,6 +56,21 @@ func (mr *MockGophemartRepositoryMockRecorder) CreateUser(ctx, user any) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophemartRepository)(nil).CreateUser), ctx, user)
 }
 
+// GetUserBalance mocks base method.
+func (m *MockGophemartRepository) GetUserBalance(ctx context.Context, userID int64) (*domain.UserBalance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserBalance", ctx, userID)
+	ret0, _ := ret[0].(*domain.UserBalance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserBalance indicates an expected call of GetUserBalance.
+func (mr *MockGophemartRepositoryMockRecorder) GetUserBalance(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBalance", reflect.TypeOf((*MockGophemartRepository)(nil).GetUserBalance), ctx, userID)
+}
+
 // GetUserByLogin mocks base method.
 func (m *MockGophemartRepository) GetUserByLogin(ctx context.Context, login string) (*domain.User, error) {
 	m.ctrl.T.Helper()
@@ -122,6 +137,21 @@ func (m *MockGophemartService) CreateUser(ctx context.Context, request domain.Us
 func (mr *MockGophemartServiceMockRecorder) CreateUser(ctx, request any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophemartService)(nil).CreateUser), ctx, request)
+}
+
+// GetUserBalance mocks base method.
+func (m *MockGophemartService) GetUserBalance(ctx context.Context, userID int64) (*domain.UserBalance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserBalance", ctx, userID)
+	ret0, _ := ret[0].(*domain.UserBalance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserBalance indicates an expected call of GetUserBalance.
+func (mr *MockGophemartServiceMockRecorder) GetUserBalance(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBalance", reflect.TypeOf((*MockGophemartService)(nil).GetUserBalance), ctx, userID)
 }
 
 // LoginUser mocks base method.
