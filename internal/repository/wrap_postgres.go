@@ -7,8 +7,8 @@ import (
 	"github.com/Vla8islav/gophemart/internal/domain"
 )
 
-func WrapPostgres(currentConfig *config.OptionsServer) (domain.GophemartRepository, error) {
-	var db domain.GophemartRepository
+func WrapPostgres(currentConfig *config.OptionsServer) (domain.GophermartRepository, error) {
+	var db domain.GophermartRepository
 	var err error
 
 	// Case 1

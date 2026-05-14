@@ -5,12 +5,12 @@ import (
 )
 
 type gophermartService struct {
-	repository    domain.GophemartRepository
+	repository    domain.GophermartRepository
 	authSecret    []byte
 	accrualClient domain.GophermartAccrualClient
 }
 
-func NewMetricsService(repo domain.GophemartRepository,
+func NewMetricsService(repo domain.GophermartRepository,
 	accrualClient domain.GophermartAccrualClient, authSecret string) domain.GophemartService {
 	return gophermartService{
 		repository:    repo,

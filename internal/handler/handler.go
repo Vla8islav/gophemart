@@ -45,3 +45,8 @@ func (h *Handler) writeMethodNotAllowed(w http.ResponseWriter, msg string) {
 	h.logger.Error("method not allowed: ", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusMethodNotAllowed)
 }
+
+func (h *Handler) writeNoContent(w http.ResponseWriter, msg string) {
+	h.logger.Error("found no content: ", zap.String("msg", msg))
+	http.Error(w, msg, http.StatusNoContent)
+}

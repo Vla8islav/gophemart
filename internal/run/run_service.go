@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func Run(ctx context.Context, db domain.GophemartRepository, cfg *config.OptionsServer, logger *zap.Logger) error {
+func Run(ctx context.Context, db domain.GophermartRepository, cfg *config.OptionsServer, logger *zap.Logger) error {
 
 	gophermartAccrualClient := accrual_client.NewAccrualClient(cfg.AccrualAddress.Value, nil)
 
