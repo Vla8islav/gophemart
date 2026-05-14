@@ -16,6 +16,11 @@ func NewHandler(service domain.GophemartService, logger *zap.Logger) *Handler {
 	return &Handler{service: service, logger: logger}
 }
 
+func (h *Handler) writeUnauthorised(w http.ResponseWriter, msg string) {
+	h.logger.Error("unauthorised", zap.String("msg", msg))
+	http.Error(w, msg, http.StatusUnauthorized)
+}
+
 func (h *Handler) writeAlreadyExists(w http.ResponseWriter, msg string) {
 	h.logger.Error("already exists", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusConflict)

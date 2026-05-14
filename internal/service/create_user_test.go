@@ -6,10 +6,17 @@ import (
 
 	"github.com/Vla8islav/gophemart/internal/domain"
 	"github.com/Vla8islav/gophemart/internal/helpers"
+	"github.com/Vla8islav/gophemart/internal/mocks"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 )
 
 func TestMetricsService_CreateUser(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	ctx := context.Background()
 
 	userRegReq := domain.UserRegisterRequest{
@@ -17,15 +24,16 @@ func TestMetricsService_CreateUser(t *testing.T) {
 		Password: "test-password",
 	}
 
-	repository := fakeCreateUserRepository{
-		createUserFunc: func(ctx context.Context, params domain.CreateUserParams) (int64, error) {
+	repository := mocks.NewMockGophemartRepository(ctrl)
+	repository.EXPECT().
+		CreateUser(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(ctx context.Context, params domain.CreateUserParams) (int64, error) {
 			require.Equal(t, userRegReq.Login, params.Login)
 			require.NotEqual(t, userRegReq.Password, params.PasswordHash)
 			require.NoError(t, helpers.CompareHashAndPassword(params.PasswordHash, userRegReq.Password))
 
 			return 123, nil
-		},
-	}
+		})
 
 	service := metricsService{
 		repository: repository,
@@ -40,6 +48,11 @@ func TestMetricsService_CreateUser(t *testing.T) {
 }
 
 func TestMetricsService_CreateUser_HashesSamePasswordDifferently(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	ctx := context.Background()
 
 	firstReq := domain.UserRegisterRequest{
@@ -53,12 +66,14 @@ func TestMetricsService_CreateUser_HashesSamePasswordDifferently(t *testing.T) {
 
 	var passwordHashes []string
 
-	repository := fakeCreateUserRepository{
-		createUserFunc: func(ctx context.Context, params domain.CreateUserParams) (int64, error) {
+	repository := mocks.NewMockGophemartRepository(ctrl)
+	repository.EXPECT().
+		CreateUser(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(ctx context.Context, params domain.CreateUserParams) (int64, error) {
 			passwordHashes = append(passwordHashes, params.PasswordHash)
 			return int64(len(passwordHashes)), nil
-		},
-	}
+		}).
+		Times(2)
 
 	service := metricsService{
 		repository: repository,

@@ -3,7 +3,6 @@ module github.com/Vla8islav/gophemart
 go 1.26.0
 
 require (
-	github.com/Vla8islav/metrics-aggregator v0.0.0-20260425124048-a68c34166b78
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/jackc/pgerrcode v0.0.0-20250907135507-afb5586c32a6
@@ -12,7 +11,9 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.42.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.42.0
+	go.uber.org/mock v0.6.0
 	go.uber.org/zap v1.28.0
+	golang.org/x/crypto v0.50.0
 )
 
 require (
@@ -68,7 +69,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.43.0 // indirect
 	go.opentelemetry.io/otel/trace v1.43.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.50.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect

@@ -10,19 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPing(t *testing.T) {
-
-	cfg := initE2ETestServer(t)
-
-	pingURL := "http://" + cfg.ServerAddress.Value + "/api/ping"
-
-	resp, err := http.Get(pingURL)
-	require.NoError(t, err)
-	defer resp.Body.Close()
-
-	require.Equal(t, http.StatusOK, resp.StatusCode)
-}
-
 func TestRegisterUserDuplicateLogin(t *testing.T) {
 
 	cfg := initE2ETestServer(t)

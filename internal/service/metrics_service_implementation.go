@@ -1,8 +1,6 @@
 package service
 
 import (
-	"context"
-
 	"github.com/Vla8islav/gophemart/internal/domain"
 )
 
@@ -16,8 +14,4 @@ func NewMetricsService(repo domain.GophemartRepository, authSecret string) domai
 		repository: repo,
 		authSecret: []byte(authSecret),
 	}
-}
-
-func (m metricsService) Ping(ctx context.Context) error {
-	return m.repository.Ping(ctx)
 }
