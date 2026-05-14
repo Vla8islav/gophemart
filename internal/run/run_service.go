@@ -18,7 +18,7 @@ func Run(ctx context.Context, db domain.GophemartRepository, cfg *config.Options
 
 	srvApp := service.NewMetricsService(db, cfg.AuthTokenSecret.Value)
 	h := handler.NewHandler(srvApp, logger)
-	r := handler.NewRouter(h)
+	r := handler.NewRouter(h, cfg)
 
 	handlerWithMW := middlewares.ChainMiddlewares(
 		r,
