@@ -2,29 +2,41 @@ package handler
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/Vla8islav/gophemart/internal/domain"
+	"github.com/Vla8islav/gophemart/internal/mocks"
 	"github.com/Vla8islav/gophemart/internal/repository"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
+	"go.uber.org/zap"
 )
 
-func TestUserRegisterHandler_Success(t *testing.T) {
-	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
-			require.Equal(t, "test-login", req.Login)
-			require.Equal(t, "test-password", req.Password)
-
-			return &domain.AuthResult{
-				Token:  "test-token",
-				UserID: 1,
-			}, nil
-		},
+func newTestRegisterHandler(service domain.GophemartService) *Handler {
+	return &Handler{
+		service: service,
+		logger:  zap.NewNop(),
 	}
+}
+
+func TestUserRegisterHandler_Success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+	service.EXPECT().
+		CreateUser(gomock.Any(), domain.UserRegisterRequest{
+			Login:    "test-login",
+			Password: "test-password",
+		}).
+		Return(&domain.AuthResult{
+			Token:  "test-token",
+			UserID: 1,
+		}, nil)
+
 	h := newTestRegisterHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)
@@ -41,14 +53,20 @@ func TestUserRegisterHandler_Success(t *testing.T) {
 }
 
 func TestUserRegisterHandler_AllowsJSONContentTypeWithCharset(t *testing.T) {
-	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
-			return &domain.AuthResult{
-				Token:  "test-token",
-				UserID: 1,
-			}, nil
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+	service.EXPECT().
+		CreateUser(gomock.Any(), domain.UserRegisterRequest{
+			Login:    "test-login",
+			Password: "test-password",
+		}).
+		Return(&domain.AuthResult{
+			Token:  "test-token",
+			UserID: 1,
+		}, nil)
+
 	h := newTestRegisterHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)
@@ -65,12 +83,11 @@ func TestUserRegisterHandler_AllowsJSONContentTypeWithCharset(t *testing.T) {
 }
 
 func TestUserRegisterHandler_MethodNotAllowed(t *testing.T) {
-	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
-			t.Fatal("CreateUser should not be called")
-			return nil, nil
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+
 	h := newTestRegisterHandler(service)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/user/register", nil)
@@ -85,12 +102,11 @@ func TestUserRegisterHandler_MethodNotAllowed(t *testing.T) {
 }
 
 func TestUserRegisterHandler_BadContentType(t *testing.T) {
-	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
-			t.Fatal("CreateUser should not be called")
-			return nil, nil
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+
 	h := newTestRegisterHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)
@@ -107,12 +123,11 @@ func TestUserRegisterHandler_BadContentType(t *testing.T) {
 }
 
 func TestUserRegisterHandler_InvalidJSON(t *testing.T) {
-	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
-			t.Fatal("CreateUser should not be called")
-			return nil, nil
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+
 	h := newTestRegisterHandler(service)
 
 	body := bytes.NewBufferString(`{"login":`)
@@ -129,12 +144,11 @@ func TestUserRegisterHandler_InvalidJSON(t *testing.T) {
 }
 
 func TestUserRegisterHandler_EmptyPassword(t *testing.T) {
-	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
-			t.Fatal("CreateUser should not be called")
-			return nil, nil
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+
 	h := newTestRegisterHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":""}`)
@@ -151,11 +165,17 @@ func TestUserRegisterHandler_EmptyPassword(t *testing.T) {
 }
 
 func TestUserRegisterHandler_ServiceError(t *testing.T) {
-	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
-			return nil, errors.New("service error")
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+	service.EXPECT().
+		CreateUser(gomock.Any(), domain.UserRegisterRequest{
+			Login:    "test-login",
+			Password: "test-password",
+		}).
+		Return(nil, errors.New("service error"))
+
 	h := newTestRegisterHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)
@@ -172,11 +192,17 @@ func TestUserRegisterHandler_ServiceError(t *testing.T) {
 }
 
 func TestUserRegisterHandler_UserAlreadyExists(t *testing.T) {
-	service := fakeRegisterService{
-		createUserFunc: func(ctx context.Context, req domain.UserRegisterRequest) (*domain.AuthResult, error) {
-			return nil, repository.ErrUserAlreadyExists
-		},
-	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	service := mocks.NewMockGophemartService(ctrl)
+	service.EXPECT().
+		CreateUser(gomock.Any(), domain.UserRegisterRequest{
+			Login:    "test-login",
+			Password: "test-password",
+		}).
+		Return(nil, repository.ErrUserAlreadyExists)
+
 	h := newTestRegisterHandler(service)
 
 	body := bytes.NewBufferString(`{"login":"test-login","password":"test-password"}`)
