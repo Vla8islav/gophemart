@@ -36,6 +36,11 @@ func (h *Handler) writeBadRequest(w http.ResponseWriter, msg string) {
 	http.Error(w, msg, http.StatusBadRequest)
 }
 
+func (h *Handler) writeUnprocessableEntity(w http.ResponseWriter, msg string) {
+	h.logger.Error("incorrect request checksum", zap.String("msg", msg))
+	http.Error(w, msg, http.StatusUnprocessableEntity)
+}
+
 func (h *Handler) writeMethodNotAllowed(w http.ResponseWriter, msg string) {
 	h.logger.Error("method not allowed: ", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusMethodNotAllowed)

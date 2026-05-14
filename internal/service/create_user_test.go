@@ -35,7 +35,7 @@ func TestMetricsService_CreateUser(t *testing.T) {
 			return 123, nil
 		})
 
-	service := metricsService{
+	service := gophermartService{
 		repository: repository,
 		authSecret: []byte("test-secret"),
 	}
@@ -75,7 +75,7 @@ func TestMetricsService_CreateUser_HashesSamePasswordDifferently(t *testing.T) {
 		}).
 		Times(2)
 
-	service := metricsService{
+	service := gophermartService{
 		repository: repository,
 		authSecret: []byte("test-secret"),
 	}

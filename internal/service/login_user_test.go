@@ -32,7 +32,7 @@ func TestMetricsService_LoginUser(t *testing.T) {
 			PasswordHash: passwordHash,
 		}, nil)
 
-	service := metricsService{
+	service := gophermartService{
 		repository: repository,
 	}
 
@@ -66,7 +66,7 @@ func TestMetricsService_LoginUser_InvalidPassword(t *testing.T) {
 			PasswordHash: passwordHash,
 		}, nil)
 
-	service := metricsService{
+	service := gophermartService{
 		repository: repository,
 	}
 
@@ -74,7 +74,7 @@ func TestMetricsService_LoginUser_InvalidPassword(t *testing.T) {
 		Login:    "test-login",
 		Password: "wrong-password",
 	})
-	require.ErrorIs(t, err, ErrInvalidUserCredentials)
+	require.ErrorIs(t, err, domain.ErrInvalidUserCredentials)
 	require.Nil(t, authResult)
 }
 
@@ -89,9 +89,9 @@ func TestMetricsService_LoginUser_UserNotFound(t *testing.T) {
 	repository := mocks.NewMockGophemartRepository(ctrl)
 	repository.EXPECT().
 		GetUserByLogin(gomock.Any(), "missing-login").
-		Return(nil, ErrInvalidUserCredentials)
+		Return(nil, domain.ErrInvalidUserCredentials)
 
-	service := metricsService{
+	service := gophermartService{
 		repository: repository,
 	}
 
@@ -99,7 +99,7 @@ func TestMetricsService_LoginUser_UserNotFound(t *testing.T) {
 		Login:    "missing-login",
 		Password: "test-password",
 	})
-	require.ErrorIs(t, err, ErrInvalidUserCredentials)
+	require.ErrorIs(t, err, domain.ErrInvalidUserCredentials)
 	require.Nil(t, authResult)
 }
 
@@ -117,7 +117,7 @@ func TestMetricsService_LoginUser_RepositoryError(t *testing.T) {
 		GetUserByLogin(gomock.Any(), "test-login").
 		Return(nil, repositoryErr)
 
-	service := metricsService{
+	service := gophermartService{
 		repository: repository,
 	}
 

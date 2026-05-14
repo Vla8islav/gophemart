@@ -8,7 +8,7 @@ import (
 	"github.com/Vla8islav/gophemart/internal/helpers"
 )
 
-func (m metricsService) CreateUser(ctx context.Context, userRegReq domain.UserRegisterRequest) (*domain.AuthResult, error) {
+func (m gophermartService) CreateUser(ctx context.Context, userRegReq domain.UserRegisterRequest) (*domain.AuthResult, error) {
 	hash, err := helpers.HashPassword(userRegReq.Password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to calculate the hash for the new user %s: %w", userRegReq.Login, err)
