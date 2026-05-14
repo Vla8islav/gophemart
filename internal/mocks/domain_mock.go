@@ -17,32 +17,32 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockGophemartRepository is a mock of GophermartRepository interface.
-type MockGophemartRepository struct {
+// MockGophermartRepository is a mock of GophermartRepository interface.
+type MockGophermartRepository struct {
 	ctrl     *gomock.Controller
-	recorder *MockGophemartRepositoryMockRecorder
+	recorder *MockGophermartRepositoryMockRecorder
 	isgomock struct{}
 }
 
-// MockGophemartRepositoryMockRecorder is the mock recorder for MockGophemartRepository.
-type MockGophemartRepositoryMockRecorder struct {
-	mock *MockGophemartRepository
+// MockGophermartRepositoryMockRecorder is the mock recorder for MockGophermartRepository.
+type MockGophermartRepositoryMockRecorder struct {
+	mock *MockGophermartRepository
 }
 
-// NewMockGophemartRepository creates a new mock instance.
-func NewMockGophemartRepository(ctrl *gomock.Controller) *MockGophemartRepository {
-	mock := &MockGophemartRepository{ctrl: ctrl}
-	mock.recorder = &MockGophemartRepositoryMockRecorder{mock}
+// NewMockGophermartRepository creates a new mock instance.
+func NewMockGophermartRepository(ctrl *gomock.Controller) *MockGophermartRepository {
+	mock := &MockGophermartRepository{ctrl: ctrl}
+	mock.recorder = &MockGophermartRepositoryMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockGophemartRepository) EXPECT() *MockGophemartRepositoryMockRecorder {
+func (m *MockGophermartRepository) EXPECT() *MockGophermartRepositoryMockRecorder {
 	return m.recorder
 }
 
 // CreateOrder mocks base method.
-func (m *MockGophemartRepository) CreateOrder(ctx context.Context, userID int64, orderNumber string) error {
+func (m *MockGophermartRepository) CreateOrder(ctx context.Context, userID int64, orderNumber string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateOrder", ctx, userID, orderNumber)
 	ret0, _ := ret[0].(error)
@@ -50,13 +50,13 @@ func (m *MockGophemartRepository) CreateOrder(ctx context.Context, userID int64,
 }
 
 // CreateOrder indicates an expected call of CreateOrder.
-func (mr *MockGophemartRepositoryMockRecorder) CreateOrder(ctx, userID, orderNumber any) *gomock.Call {
+func (mr *MockGophermartRepositoryMockRecorder) CreateOrder(ctx, userID, orderNumber any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrder", reflect.TypeOf((*MockGophemartRepository)(nil).CreateOrder), ctx, userID, orderNumber)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrder", reflect.TypeOf((*MockGophermartRepository)(nil).CreateOrder), ctx, userID, orderNumber)
 }
 
 // CreateUser mocks base method.
-func (m *MockGophemartRepository) CreateUser(ctx context.Context, user domain.CreateUserParams) (int64, error) {
+func (m *MockGophermartRepository) CreateUser(ctx context.Context, user domain.CreateUserParams) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", ctx, user)
 	ret0, _ := ret[0].(int64)
@@ -65,13 +65,13 @@ func (m *MockGophemartRepository) CreateUser(ctx context.Context, user domain.Cr
 }
 
 // CreateUser indicates an expected call of CreateUser.
-func (mr *MockGophemartRepositoryMockRecorder) CreateUser(ctx, user any) *gomock.Call {
+func (mr *MockGophermartRepositoryMockRecorder) CreateUser(ctx, user any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophemartRepository)(nil).CreateUser), ctx, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophermartRepository)(nil).CreateUser), ctx, user)
 }
 
 // GetUserBalance mocks base method.
-func (m *MockGophemartRepository) GetUserBalance(ctx context.Context, userID int64) (*domain.UserBalance, error) {
+func (m *MockGophermartRepository) GetUserBalance(ctx context.Context, userID int64) (*domain.UserBalance, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserBalance", ctx, userID)
 	ret0, _ := ret[0].(*domain.UserBalance)
@@ -80,13 +80,13 @@ func (m *MockGophemartRepository) GetUserBalance(ctx context.Context, userID int
 }
 
 // GetUserBalance indicates an expected call of GetUserBalance.
-func (mr *MockGophemartRepositoryMockRecorder) GetUserBalance(ctx, userID any) *gomock.Call {
+func (mr *MockGophermartRepositoryMockRecorder) GetUserBalance(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBalance", reflect.TypeOf((*MockGophemartRepository)(nil).GetUserBalance), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBalance", reflect.TypeOf((*MockGophermartRepository)(nil).GetUserBalance), ctx, userID)
 }
 
 // GetUserByLogin mocks base method.
-func (m *MockGophemartRepository) GetUserByLogin(ctx context.Context, login string) (*domain.User, error) {
+func (m *MockGophermartRepository) GetUserByLogin(ctx context.Context, login string) (*domain.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByLogin", ctx, login)
 	ret0, _ := ret[0].(*domain.User)
@@ -95,13 +95,28 @@ func (m *MockGophemartRepository) GetUserByLogin(ctx context.Context, login stri
 }
 
 // GetUserByLogin indicates an expected call of GetUserByLogin.
-func (mr *MockGophemartRepositoryMockRecorder) GetUserByLogin(ctx, login any) *gomock.Call {
+func (mr *MockGophermartRepositoryMockRecorder) GetUserByLogin(ctx, login any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByLogin", reflect.TypeOf((*MockGophemartRepository)(nil).GetUserByLogin), ctx, login)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByLogin", reflect.TypeOf((*MockGophermartRepository)(nil).GetUserByLogin), ctx, login)
+}
+
+// GetUserOrders mocks base method.
+func (m *MockGophermartRepository) GetUserOrders(ctx context.Context, userID int64) ([]domain.UserOrder, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserOrders", ctx, userID)
+	ret0, _ := ret[0].([]domain.UserOrder)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserOrders indicates an expected call of GetUserOrders.
+func (mr *MockGophermartRepositoryMockRecorder) GetUserOrders(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOrders", reflect.TypeOf((*MockGophermartRepository)(nil).GetUserOrders), ctx, userID)
 }
 
 // Ping mocks base method.
-func (m *MockGophemartRepository) Ping(ctx context.Context) error {
+func (m *MockGophermartRepository) Ping(ctx context.Context) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Ping", ctx)
 	ret0, _ := ret[0].(error)
@@ -109,9 +124,9 @@ func (m *MockGophemartRepository) Ping(ctx context.Context) error {
 }
 
 // Ping indicates an expected call of Ping.
-func (mr *MockGophemartRepositoryMockRecorder) Ping(ctx any) *gomock.Call {
+func (mr *MockGophermartRepositoryMockRecorder) Ping(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophemartRepository)(nil).Ping), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophermartRepository)(nil).Ping), ctx)
 }
 
 // MockGophemartService is a mock of GophemartService interface.
@@ -180,6 +195,21 @@ func (m *MockGophemartService) GetUserBalance(ctx context.Context, userID int64)
 func (mr *MockGophemartServiceMockRecorder) GetUserBalance(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBalance", reflect.TypeOf((*MockGophemartService)(nil).GetUserBalance), ctx, userID)
+}
+
+// GetUserOrders mocks base method.
+func (m *MockGophemartService) GetUserOrders(ctx context.Context, userID int64) ([]domain.UserOrder, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserOrders", ctx, userID)
+	ret0, _ := ret[0].([]domain.UserOrder)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserOrders indicates an expected call of GetUserOrders.
+func (mr *MockGophemartServiceMockRecorder) GetUserOrders(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOrders", reflect.TypeOf((*MockGophemartService)(nil).GetUserOrders), ctx, userID)
 }
 
 // LoginUser mocks base method.

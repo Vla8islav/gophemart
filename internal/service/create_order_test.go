@@ -76,7 +76,7 @@ func TestGophermartService_CreateOrder(t *testing.T) {
 			t.Parallel()
 
 			ctrl := gomock.NewController(t)
-			repository := mocks.NewMockGophemartRepository(ctrl)
+			repository := mocks.NewMockGophermartRepository(ctrl)
 			service := gophermartService{repository: repository}
 
 			if tt.wantRepoCall {

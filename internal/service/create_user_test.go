@@ -24,7 +24,7 @@ func TestMetricsService_CreateUser(t *testing.T) {
 		Password: "test-password",
 	}
 
-	repository := mocks.NewMockGophemartRepository(ctrl)
+	repository := mocks.NewMockGophermartRepository(ctrl)
 	repository.EXPECT().
 		CreateUser(gomock.Any(), gomock.Any()).
 		DoAndReturn(func(ctx context.Context, params domain.CreateUserParams) (int64, error) {
@@ -66,7 +66,7 @@ func TestMetricsService_CreateUser_HashesSamePasswordDifferently(t *testing.T) {
 
 	var passwordHashes []string
 
-	repository := mocks.NewMockGophemartRepository(ctrl)
+	repository := mocks.NewMockGophermartRepository(ctrl)
 	repository.EXPECT().
 		CreateUser(gomock.Any(), gomock.Any()).
 		DoAndReturn(func(ctx context.Context, params domain.CreateUserParams) (int64, error) {
