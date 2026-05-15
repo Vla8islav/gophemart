@@ -1,8 +1,10 @@
 package e2e
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os/exec"
@@ -32,6 +34,8 @@ type e2eServerManager struct {
 }
 
 var e2eServer e2eServerManager
+
+const e2eAccrualDatabaseURI = "postgres://default_user:default_password@localhost:5432/accrual?sslmode=disable"
 
 func initE2ETestServer(t *testing.T) *config.OptionsServer {
 	t.Helper()
@@ -155,10 +159,27 @@ func startE2EAccrualServer(t *testing.T) (func(), string, error) {
 		binaryPath += ".exe"
 	}
 
-	cmd := exec.Command(binaryPath, "-a", address)
+	cmd := exec.Command(binaryPath,
+		"-a", address,
+		"-d", e2eAccrualDatabaseURI,
+	)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, "", err
+	}
+
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return nil, "", err
+	}
+
 	if err := cmd.Start(); err != nil {
 		return nil, "", err
 	}
+
+	logProcessOutput(t, "accrual stdout", stdout)
+	logProcessOutput(t, "accrual stderr", stderr)
 
 	stop := func() {
 		if cmd.Process == nil {
@@ -172,6 +193,21 @@ func startE2EAccrualServer(t *testing.T) (func(), string, error) {
 	waitForAccrualServer(t, address)
 
 	return stop, address, nil
+}
+
+func logProcessOutput(t *testing.T, name string, reader io.Reader) {
+	t.Helper()
+
+	go func() {
+		scanner := bufio.NewScanner(reader)
+		for scanner.Scan() {
+			t.Logf("%s: %s", name, scanner.Text())
+		}
+
+		if err := scanner.Err(); err != nil {
+			t.Logf("%s read error: %v", name, err)
+		}
+	}()
 }
 
 func freeLocalAddress() (string, error) {

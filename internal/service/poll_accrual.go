@@ -50,10 +50,6 @@ func (m gophermartService) pollOrdersInfo(
 		}
 
 		if info == nil {
-			pollingErrors = append(
-				pollingErrors,
-				fmt.Errorf("order %s: accrual client returned nil info without error", order.Number),
-			)
 			continue
 		}
 

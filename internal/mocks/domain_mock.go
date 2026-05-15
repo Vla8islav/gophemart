@@ -284,6 +284,20 @@ func (mr *MockGophemartServiceMockRecorder) PollAccrual(ctx any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PollAccrual", reflect.TypeOf((*MockGophemartService)(nil).PollAccrual), ctx)
 }
 
+// StartAccrualPolling mocks base method.
+func (m *MockGophemartService) StartAccrualPolling(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StartAccrualPolling", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// StartAccrualPolling indicates an expected call of StartAccrualPolling.
+func (mr *MockGophemartServiceMockRecorder) StartAccrualPolling(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartAccrualPolling", reflect.TypeOf((*MockGophemartService)(nil).StartAccrualPolling), ctx)
+}
+
 // MockGophermartAccrualClient is a mock of GophermartAccrualClient interface.
 type MockGophermartAccrualClient struct {
 	ctrl     *gomock.Controller

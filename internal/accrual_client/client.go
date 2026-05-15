@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/Vla8islav/gophemart/internal/domain"
 )
@@ -17,6 +18,11 @@ type AccrualClient struct {
 func NewAccrualClient(baseURL string, httpClient *http.Client) *AccrualClient {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
+	}
+
+	baseURL = strings.TrimRight(baseURL, "/")
+	if !strings.HasPrefix(baseURL, "http://") && !strings.HasPrefix(baseURL, "https://") {
+		baseURL = "http://" + baseURL
 	}
 
 	return &AccrualClient{

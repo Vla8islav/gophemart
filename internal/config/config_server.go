@@ -49,7 +49,7 @@ func logSetFlagsServer(options *OptionsServer) {
 	}
 
 	if options.AccrualPollingInterval.BeenSet {
-		setFlags = append(setFlags, fmt.Sprintf("-i=%s", options.AccrualPollingInterval.Value))
+		setFlags = append(setFlags, fmt.Sprintf("-i=%d", options.AccrualPollingInterval.Value))
 	}
 
 	if len(setFlags) == 0 {
