@@ -2,7 +2,9 @@ package e2e
 
 import (
 	"bufio"
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -36,6 +38,12 @@ type e2eServerManager struct {
 var e2eServer e2eServerManager
 
 const e2eAccrualDatabaseURI = "postgres://default_user:default_password@localhost:5432/accrual?sslmode=disable"
+
+var e2eAccrualOrderNumbers = []string{
+	"9278923470",
+	"12345678903",
+	"346436439",
+}
 
 func initE2ETestServer(t *testing.T) *config.OptionsServer {
 	t.Helper()
@@ -191,6 +199,7 @@ func startE2EAccrualServer(t *testing.T) (func(), string, error) {
 	}
 
 	waitForAccrualServer(t, address)
+	seedAccrualServer(t, address)
 
 	return stop, address, nil
 }
@@ -208,6 +217,49 @@ func logProcessOutput(t *testing.T, name string, reader io.Reader) {
 			t.Logf("%s read error: %v", name, err)
 		}
 	}()
+}
+
+func seedAccrualServer(t *testing.T, address string) {
+	t.Helper()
+
+	client := http.Client{Timeout: 2 * time.Second}
+	baseURL := "http://" + address
+
+	postJSON(t, client, baseURL+"/api/goods", map[string]any{
+		"match":       "Bork",
+		"reward":      10,
+		"reward_type": "%",
+	})
+
+	for _, orderNumber := range e2eAccrualOrderNumbers {
+		postJSON(t, client, baseURL+"/api/orders", map[string]any{
+			"order": orderNumber,
+			"goods": []map[string]any{
+				{
+					"description": "Чайник Bork",
+					"price":       7000,
+				},
+			},
+		})
+	}
+}
+
+func postJSON(t *testing.T, client http.Client, url string, payload any) {
+	t.Helper()
+
+	body, err := json.Marshal(payload)
+	require.NoError(t, err)
+
+	resp, err := client.Post(url, "application/json", bytes.NewReader(body))
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Truef(t,
+		resp.StatusCode >= http.StatusOK && resp.StatusCode < http.StatusMultipleChoices,
+		"unexpected status %d for POST %s",
+		resp.StatusCode,
+		url,
+	)
 }
 
 func freeLocalAddress() (string, error) {

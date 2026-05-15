@@ -18,7 +18,6 @@ type accrualPollingOrderResponse struct {
 }
 
 func TestAccrualPollingUpdatesOrders(t *testing.T) {
-	t.Skip()
 	cfg := initE2ETestServer(t)
 	serverURL := "http://" + cfg.ServerAddress.Value
 	client := http.Client{Timeout: 2 * time.Second}
