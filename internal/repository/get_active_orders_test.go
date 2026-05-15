@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/Vla8islav/gophemart/internal/config"
 	"github.com/Vla8islav/gophemart/internal/domain"
@@ -15,18 +17,19 @@ func TestPostgresStorage_GetActiveOrders(t *testing.T) {
 	storage := InitTestPostgresStorage(t, cfg)
 
 	ctx := context.Background()
+	suffix := time.Now().UnixNano()
 
 	userID, err := storage.CreateUser(ctx, domain.CreateUserParams{
-		Login:        helpers.UniqueLogin("get-active-orders-user-test"),
+		Login:        helpers.UniqueLogin(fmt.Sprintf("get-active-orders-user-test-%d", suffix)),
 		PasswordHash: "hashed-password",
 	})
 	require.NoError(t, err)
 	require.Greater(t, userID, int64(0))
 
-	newOrderNumber := helpers.UniqueLogin("get-active-orders-new")
-	processingOrderNumber := helpers.UniqueLogin("get-active-orders-processing")
-	processedOrderNumber := helpers.UniqueLogin("get-active-orders-processed")
-	invalidOrderNumber := helpers.UniqueLogin("get-active-orders-invalid")
+	newOrderNumber := fmt.Sprintf("get-active-orders-new-%d", suffix)
+	processingOrderNumber := fmt.Sprintf("get-active-orders-processing-%d", suffix)
+	processedOrderNumber := fmt.Sprintf("get-active-orders-processed-%d", suffix)
+	invalidOrderNumber := fmt.Sprintf("get-active-orders-invalid-%d", suffix)
 
 	processingAccrual := int64(25000)
 	processedAccrual := int64(50000)
@@ -47,18 +50,30 @@ func TestPostgresStorage_GetActiveOrders(t *testing.T) {
 
 	orders, err := storage.GetActiveOrders(ctx)
 	require.NoError(t, err)
-	require.Len(t, orders, 2)
 
-	require.Equal(t, newOrderNumber, orders[0].Number)
-	require.Equal(t, "NEW", orders[0].Status)
-	require.Nil(t, orders[0].Accrual)
-	require.False(t, orders[0].UploadedAt.IsZero())
+	ordersByNumber := make(map[string]domain.UserOrder, len(orders))
+	for _, order := range orders {
+		ordersByNumber[order.Number] = order
+	}
 
-	require.Equal(t, processingOrderNumber, orders[1].Number)
-	require.Equal(t, "PROCESSING", orders[1].Status)
-	require.NotNil(t, orders[1].Accrual)
-	require.Equal(t, processingAccrual, *orders[1].Accrual)
-	require.False(t, orders[1].UploadedAt.IsZero())
+	newOrder, ok := ordersByNumber[newOrderNumber]
+	require.True(t, ok)
+	require.Equal(t, "NEW", newOrder.Status)
+	require.Nil(t, newOrder.Accrual)
+	require.False(t, newOrder.UploadedAt.IsZero())
+
+	processingOrder, ok := ordersByNumber[processingOrderNumber]
+	require.True(t, ok)
+	require.Equal(t, "PROCESSING", processingOrder.Status)
+	require.NotNil(t, processingOrder.Accrual)
+	require.Equal(t, processingAccrual, *processingOrder.Accrual)
+	require.False(t, processingOrder.UploadedAt.IsZero())
+
+	_, ok = ordersByNumber[processedOrderNumber]
+	require.False(t, ok)
+
+	_, ok = ordersByNumber[invalidOrderNumber]
+	require.False(t, ok)
 }
 
 func TestPostgresStorage_GetActiveOrders_Empty(t *testing.T) {
@@ -66,16 +81,17 @@ func TestPostgresStorage_GetActiveOrders_Empty(t *testing.T) {
 	storage := InitTestPostgresStorage(t, cfg)
 
 	ctx := context.Background()
+	suffix := time.Now().UnixNano()
 
 	userID, err := storage.CreateUser(ctx, domain.CreateUserParams{
-		Login:        helpers.UniqueLogin("get-active-orders-empty-user-test"),
+		Login:        helpers.UniqueLogin(fmt.Sprintf("get-active-orders-empty-user-test-%d", suffix)),
 		PasswordHash: "hashed-password",
 	})
 	require.NoError(t, err)
 	require.Greater(t, userID, int64(0))
 
-	processedOrderNumber := helpers.UniqueLogin("get-active-orders-empty-processed")
-	invalidOrderNumber := helpers.UniqueLogin("get-active-orders-empty-invalid")
+	processedOrderNumber := fmt.Sprintf("get-active-orders-empty-processed-%d", suffix)
+	invalidOrderNumber := fmt.Sprintf("get-active-orders-empty-invalid-%d", suffix)
 
 	processedAccrual := int64(50000)
 
@@ -91,5 +107,15 @@ func TestPostgresStorage_GetActiveOrders_Empty(t *testing.T) {
 
 	orders, err := storage.GetActiveOrders(ctx)
 	require.NoError(t, err)
-	require.Empty(t, orders)
+
+	ordersByNumber := make(map[string]domain.UserOrder, len(orders))
+	for _, order := range orders {
+		ordersByNumber[order.Number] = order
+	}
+
+	_, ok := ordersByNumber[processedOrderNumber]
+	require.False(t, ok)
+
+	_, ok = ordersByNumber[invalidOrderNumber]
+	require.False(t, ok)
 }

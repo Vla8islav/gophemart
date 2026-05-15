@@ -70,6 +70,21 @@ func (mr *MockGophermartRepositoryMockRecorder) CreateUser(ctx, user any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophermartRepository)(nil).CreateUser), ctx, user)
 }
 
+// GetActiveOrders mocks base method.
+func (m *MockGophermartRepository) GetActiveOrders(ctx context.Context) ([]domain.UserOrder, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetActiveOrders", ctx)
+	ret0, _ := ret[0].([]domain.UserOrder)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetActiveOrders indicates an expected call of GetActiveOrders.
+func (mr *MockGophermartRepositoryMockRecorder) GetActiveOrders(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetActiveOrders", reflect.TypeOf((*MockGophermartRepository)(nil).GetActiveOrders), ctx)
+}
+
 // GetUserBalance mocks base method.
 func (m *MockGophermartRepository) GetUserBalance(ctx context.Context, userID int64) (*domain.UserBalance, error) {
 	m.ctrl.T.Helper()
@@ -127,6 +142,20 @@ func (m *MockGophermartRepository) Ping(ctx context.Context) error {
 func (mr *MockGophermartRepositoryMockRecorder) Ping(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophermartRepository)(nil).Ping), ctx)
+}
+
+// UpdateOrders mocks base method.
+func (m *MockGophermartRepository) UpdateOrders(ctx context.Context, updates []domain.UpdateOrderParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrders", ctx, updates)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateOrders indicates an expected call of UpdateOrders.
+func (mr *MockGophermartRepositoryMockRecorder) UpdateOrders(ctx, updates any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrders", reflect.TypeOf((*MockGophermartRepository)(nil).UpdateOrders), ctx, updates)
 }
 
 // MockGophemartService is a mock of GophemartService interface.
@@ -239,6 +268,20 @@ func (m *MockGophemartService) Ping(ctx context.Context) error {
 func (mr *MockGophemartServiceMockRecorder) Ping(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophemartService)(nil).Ping), ctx)
+}
+
+// PollAccrual mocks base method.
+func (m *MockGophemartService) PollAccrual(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PollAccrual", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PollAccrual indicates an expected call of PollAccrual.
+func (mr *MockGophemartServiceMockRecorder) PollAccrual(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PollAccrual", reflect.TypeOf((*MockGophemartService)(nil).PollAccrual), ctx)
 }
 
 // MockGophermartAccrualClient is a mock of GophermartAccrualClient interface.
