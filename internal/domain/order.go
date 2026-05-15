@@ -15,3 +15,9 @@ type UserOrder struct {
 	Accrual    *int64
 	UploadedAt time.Time
 }
+
+type UpdateOrderParams struct {
+	Number  string
+	Status  string
+	Accrual *int64
+}

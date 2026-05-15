@@ -17,12 +17,12 @@ func NewHandler(service domain.GophemartService, logger *zap.Logger) *Handler {
 }
 
 func (h *Handler) writeUnauthorised(w http.ResponseWriter, msg string) {
-	h.logger.Error("unauthorised", zap.String("msg", msg))
+	h.logger.Info("unauthorised", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusUnauthorized)
 }
 
 func (h *Handler) writeAlreadyExists(w http.ResponseWriter, msg string) {
-	h.logger.Error("already exists", zap.String("msg", msg))
+	h.logger.Info("already exists", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusConflict)
 }
 
@@ -32,21 +32,21 @@ func (h *Handler) writeInternalServerError(w http.ResponseWriter, msg string) {
 }
 
 func (h *Handler) writeBadRequest(w http.ResponseWriter, msg string) {
-	h.logger.Error("bad request", zap.String("msg", msg))
+	h.logger.Info("bad request", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusBadRequest)
 }
 
 func (h *Handler) writeUnprocessableEntity(w http.ResponseWriter, msg string) {
-	h.logger.Error("incorrect request checksum", zap.String("msg", msg))
+	h.logger.Info("incorrect request checksum", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusUnprocessableEntity)
 }
 
 func (h *Handler) writeMethodNotAllowed(w http.ResponseWriter, msg string) {
-	h.logger.Error("method not allowed: ", zap.String("msg", msg))
+	h.logger.Info("method not allowed", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusMethodNotAllowed)
 }
 
 func (h *Handler) writeNoContent(w http.ResponseWriter, msg string) {
-	h.logger.Error("found no content: ", zap.String("msg", msg))
-	http.Error(w, msg, http.StatusNoContent)
+	h.logger.Info("found no content", zap.String("msg", msg))
+	w.WriteHeader(http.StatusNoContent)
 }
