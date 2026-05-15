@@ -19,7 +19,12 @@ func Run(ctx context.Context, db domain.GophermartRepository, cfg *config.Option
 
 	gophermartAccrualClient := accrual_client.NewAccrualClient(cfg.AccrualAddress.Value, nil)
 
-	srvApp := service.NewMetricsService(db, gophermartAccrualClient, cfg.AuthTokenSecret.Value)
+	srvApp := service.NewMetricsService(db, gophermartAccrualClient,
+		cfg.AuthTokenSecret.Value, cfg.AccrualPollingInterval.Value)
+	if err := srvApp.StartAccrualPolling(ctx); err != nil {
+		return err
+	}
+
 	h := handler.NewHandler(srvApp, logger)
 	r := handler.NewRouter(h, cfg)
 

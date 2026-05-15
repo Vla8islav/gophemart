@@ -2,7 +2,12 @@ package e2e
 
 import (
 	"context"
+	"fmt"
+	"net"
 	"net/http"
+	"os/exec"
+	"path/filepath"
+	"runtime"
 	"sync"
 	"testing"
 	"time"
@@ -111,6 +116,13 @@ func startE2ETestServer(t *testing.T) (*config.OptionsServer, func(), error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cfg := config.ReadFlagsServer(nil)
 
+	accrualStop, accrualAddress, err := startE2EAccrualServer(t)
+	if err != nil {
+		cancel()
+		return nil, nil, err
+	}
+	cfg.AccrualAddress.Value = accrualAddress
+
 	wrappedDB := repository.InitTestPostgresStorage(t, cfg)
 
 	go func() {
@@ -124,9 +136,79 @@ func startE2ETestServer(t *testing.T) (*config.OptionsServer, func(), error) {
 
 	stop := func() {
 		cancel()
+		accrualStop()
 	}
 
 	return cfg, stop, nil
+}
+
+func startE2EAccrualServer(t *testing.T) (func(), string, error) {
+	t.Helper()
+
+	address, err := freeLocalAddress()
+	if err != nil {
+		return nil, "", err
+	}
+
+	binaryPath := filepath.Join("..", "..", "cmd", "accrual", fmt.Sprintf("accrual_%s_%s", runtime.GOOS, runtime.GOARCH))
+	if runtime.GOOS == "windows" {
+		binaryPath += ".exe"
+	}
+
+	cmd := exec.Command(binaryPath, "-a", address)
+	if err := cmd.Start(); err != nil {
+		return nil, "", err
+	}
+
+	stop := func() {
+		if cmd.Process == nil {
+			return
+		}
+
+		_ = cmd.Process.Kill()
+		_ = cmd.Wait()
+	}
+
+	waitForAccrualServer(t, address)
+
+	return stop, address, nil
+}
+
+func freeLocalAddress() (string, error) {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		return "", err
+	}
+	defer listener.Close()
+
+	return listener.Addr().String(), nil
+}
+
+func waitForAccrualServer(t *testing.T, address string) {
+	t.Helper()
+
+	client := http.Client{
+		Timeout: 200 * time.Millisecond,
+	}
+
+	url := "http://" + address + "/api/orders/12345678903"
+	deadline := time.Now().Add(5 * time.Second)
+	var lastErr error
+
+	for time.Now().Before(deadline) {
+		resp, err := client.Get(url)
+		if err == nil {
+			_ = resp.Body.Close()
+			if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusNoContent {
+				return
+			}
+		}
+
+		lastErr = err
+		time.Sleep(50 * time.Millisecond)
+	}
+
+	require.NoError(t, lastErr, "accrual server did not become ready in time")
 }
 
 func waitForServer(t *testing.T, cfg *config.OptionsServer) {

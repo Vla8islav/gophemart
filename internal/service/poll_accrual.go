@@ -9,6 +9,13 @@ import (
 	"github.com/Vla8islav/gophemart/internal/helpers"
 )
 
+/*
+REGISTERED -> PROCESSING
+PROCESSING -> PROCESSING
+INVALID    -> INVALID
+PROCESSED  -> PROCESSED
+*/
+
 func (m gophermartService) PollAccrual(ctx context.Context) error {
 	orders, err := m.repository.GetActiveOrders(ctx)
 	if err != nil {
@@ -63,9 +70,14 @@ func (m gophermartService) updateOrdersFromAccrualInfo(
 	updateParams := make([]domain.UpdateOrderParams, 0, len(infos))
 
 	for _, info := range infos {
+		status := info.Status
+		if status == "REGISTERED" {
+			status = "PROCESSING"
+		}
+
 		param := domain.UpdateOrderParams{
 			Number: info.Order,
-			Status: info.Status,
+			Status: status,
 		}
 
 		if info.Accrual != nil {

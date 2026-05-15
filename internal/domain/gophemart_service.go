@@ -13,4 +13,5 @@ type GophemartService interface {
 	GetUserOrders(ctx context.Context, userID int64) ([]UserOrder, error)
 
 	PollAccrual(ctx context.Context) error
+	StartAccrualPolling(ctx context.Context) error
 }

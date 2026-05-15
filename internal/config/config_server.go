@@ -11,8 +11,9 @@ import (
 
 // OptionsServer TODO: implement a clean option separation
 type OptionsServer struct {
-	ServerAddress  OptionalString `env:"RUN_ADDRESS"`
-	AccrualAddress OptionalString `env:"ACCRUAL_SYSTEM_ADDRESS"`
+	ServerAddress          OptionalString `env:"RUN_ADDRESS"`
+	AccrualAddress         OptionalString `env:"ACCRUAL_SYSTEM_ADDRESS"`
+	AccrualPollingInterval OptionalInt    `env:"ACCRUAL_POLLING_INTERVAL"`
 
 	DatabaseURI OptionalString `env:"DATABASE_URI"`
 
@@ -45,6 +46,10 @@ func logSetFlagsServer(options *OptionsServer) {
 
 	if options.AuthTokenSecret.BeenSet {
 		setFlags = append(setFlags, fmt.Sprintf("-s=%s", options.AuthTokenSecret.Value))
+	}
+
+	if options.AccrualPollingInterval.BeenSet {
+		setFlags = append(setFlags, fmt.Sprintf("-i=%s", options.AccrualPollingInterval.Value))
 	}
 
 	if len(setFlags) == 0 {
@@ -83,6 +88,10 @@ func logSetEnvServer(options *OptionsServer) {
 		setEnv = append(setEnv, fmt.Sprintf("AUTH_TOKEN_SECRET=%s", options.AuthTokenSecret.Value))
 	}
 
+	if options.AccrualPollingInterval.BeenSet {
+		setEnv = append(setEnv, fmt.Sprintf("ACCRUAL_POLLING_INTERVAL=%d", options.AccrualPollingInterval.Value))
+	}
+
 	if len(setEnv) == 0 {
 		log.Println("no environment variables were set")
 		return
@@ -104,8 +113,9 @@ func ReadFlagsServer(args []string) *OptionsServer {
 	logSetEnvServer(envOptions)
 
 	finalOptions := OptionsServer{
-		ServerAddress:  OptionalString{Value: "localhost:8080", BeenSet: false},
-		AccrualAddress: OptionalString{Value: "", BeenSet: false},
+		ServerAddress:          OptionalString{Value: "localhost:8080", BeenSet: false},
+		AccrualAddress:         OptionalString{Value: "", BeenSet: false},
+		AccrualPollingInterval: OptionalInt{Value: 3, BeenSet: false},
 		DatabaseURI: OptionalString{Value: "postgres://default_user:default_password@localhost:5432/gophemart_db?sslmode=disable",
 			BeenSet: false},
 		MigrationsFolder: OptionalString{Value: "./migrations", BeenSet: false},
@@ -146,6 +156,11 @@ func mergeOptionsServer(mergeInto *OptionsServer, newValues OptionsServer) {
 		mergeInto.AuthTokenSecret.BeenSet = true
 	}
 
+	if newValues.AccrualPollingInterval.BeenSet {
+		mergeInto.AccrualPollingInterval = newValues.AccrualPollingInterval
+		mergeInto.AccrualPollingInterval.BeenSet = true
+	}
+
 }
 
 func getEnvOptions() *OptionsServer {
@@ -165,7 +180,8 @@ func getOptionsServer(args []string) (*OptionsServer, error) {
 	fs.SetOutput(io.Discard) // optional: silence flag errors in tests
 
 	fs.Var(&opt.ServerAddress, "a", "адрес и порт запуска этого сервера")
-	fs.Var(&opt.AccrualAddress, "r", "адрес и порт запуска сервера рассчета баллов лояльности")
+	fs.Var(&opt.AccrualAddress, "r", "адрес и порт запуска сервера расчета баллов лояльности")
+	fs.Var(&opt.AccrualAddress, "i", "частота поллинга сервера расчета баллов лояльности")
 
 	fs.Var(&opt.DatabaseURI, "d", "connection string/dsn для postgres базы данных")
 
