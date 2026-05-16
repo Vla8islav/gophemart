@@ -2,12 +2,14 @@ package domain
 
 import "time"
 
-type UserOrderGetResponse struct {
+type UserOrderGetResponseItem struct {
 	Number     string    `json:"number"`
 	Status     string    `json:"status"`
 	Accrual    *float64  `json:"accrual,omitempty"`
 	UploadedAt time.Time `json:"uploaded_at"`
 }
+
+type UserOrderGetResponse []UserOrderGetResponseItem
 
 type UserOrder struct {
 	Number     string

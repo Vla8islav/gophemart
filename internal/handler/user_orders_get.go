@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Vla8islav/gophemart/internal/domain"
+	"github.com/Vla8islav/gophemart/internal/helpers"
 	"github.com/Vla8islav/gophemart/internal/middlewares"
 	"go.uber.org/zap"
 )
@@ -78,9 +80,25 @@ func (h *Handler) UserOrdersGetHandler(w http.ResponseWriter, r *http.Request) {
 		h.writeInternalServerError(w, "couldn't get user orders "+strconv.FormatInt(userID, 10)+": "+err.Error())
 		return
 	}
-	if orders == nil || len(orders) == 0 {
+	if len(orders) == 0 {
 		h.writeNoContent(w, "no user orders found")
 		return
+	}
+
+	var response domain.UserOrderGetResponse
+
+	for _, order := range orders {
+		var accrualFloatPtr *float64
+		if order.Accrual != nil {
+			accrualFloat := helpers.CentsToFloat(*order.Accrual)
+			accrualFloatPtr = &accrualFloat
+		}
+		response = append(response, domain.UserOrderGetResponseItem{
+			Number:     order.Number,
+			Status:     order.Status,
+			Accrual:    accrualFloatPtr,
+			UploadedAt: order.UploadedAt,
+		})
 	}
 
 	marshal, err := json.Marshal(orders)
