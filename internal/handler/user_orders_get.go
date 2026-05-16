@@ -101,7 +101,7 @@ func (h *Handler) UserOrdersGetHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	marshal, err := json.Marshal(orders)
+	marshal, err := json.Marshal(response)
 
 	if err != nil {
 
