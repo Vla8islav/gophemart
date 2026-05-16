@@ -48,8 +48,8 @@ func TestMetricsService_GetUserBalance(t *testing.T) {
 			t.Parallel()
 
 			ctrl := gomock.NewController(t)
-			repository := mocks.NewMockGophemartRepository(ctrl)
-			service := metricsService{repository: repository}
+			repository := mocks.NewMockGophermartRepository(ctrl)
+			service := gophermartService{repository: repository}
 
 			repository.EXPECT().
 				GetUserBalance(gomock.Any(), tt.userID).

@@ -8,14 +8,14 @@ import (
 	"github.com/Vla8islav/gophemart/internal/helpers"
 )
 
-func (m metricsService) LoginUser(ctx context.Context, userRegReq domain.UserLoginRequest) (*domain.AuthResult, error) {
+func (m gophermartService) LoginUser(ctx context.Context, userRegReq domain.UserLoginRequest) (*domain.AuthResult, error) {
 	user, err := m.repository.GetUserByLogin(ctx, userRegReq.Login)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't find user by user %s: %w", userRegReq.Login, err)
 	}
 
 	if !helpers.CheckPassword(userRegReq.Password, user.PasswordHash) {
-		return nil, fmt.Errorf("invalid user credentials for user %s: %w", userRegReq.Login, ErrInvalidUserCredentials)
+		return nil, fmt.Errorf("invalid user credentials for user %s: %w", userRegReq.Login, domain.ErrInvalidUserCredentials)
 	}
 
 	token, err := helpers.CreateAuthToken(user.ID, m.authSecret)

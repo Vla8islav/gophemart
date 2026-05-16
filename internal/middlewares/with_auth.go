@@ -23,7 +23,7 @@ func UserIDFromContext(ctx context.Context) (int64, bool) {
 func WithAuth(secret []byte) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			cookie, err := r.Cookie("auth")
+			cookie, err := r.Cookie("auth_token")
 			if err != nil {
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return

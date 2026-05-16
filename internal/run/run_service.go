@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Vla8islav/gophemart/internal/accrual_client"
 	"github.com/Vla8islav/gophemart/internal/config"
 	"github.com/Vla8islav/gophemart/internal/domain"
 	"github.com/Vla8islav/gophemart/internal/handler"
@@ -14,9 +15,16 @@ import (
 	"go.uber.org/zap"
 )
 
-func Run(ctx context.Context, db domain.GophemartRepository, cfg *config.OptionsServer, logger *zap.Logger) error {
+func Run(ctx context.Context, db domain.GophermartRepository, cfg *config.OptionsServer, logger *zap.Logger) error {
 
-	srvApp := service.NewMetricsService(db, cfg.AuthTokenSecret.Value)
+	gophermartAccrualClient := accrual_client.NewAccrualClient(cfg.AccrualAddress.Value, nil)
+
+	srvApp := service.NewMetricsService(db, gophermartAccrualClient,
+		cfg.AuthTokenSecret.Value, cfg.AccrualPollingInterval.Value)
+	if err := srvApp.StartAccrualPolling(ctx); err != nil {
+		return err
+	}
+
 	h := handler.NewHandler(srvApp, logger)
 	r := handler.NewRouter(h, cfg)
 
