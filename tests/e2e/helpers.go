@@ -162,7 +162,8 @@ func startE2EAccrualServer(t *testing.T) (func(), string, error) {
 		return nil, "", err
 	}
 
-	binaryPath := filepath.Join("..", "..", "cmd", "accrual", fmt.Sprintf("accrual_%s_%s", runtime.GOOS, runtime.GOARCH))
+	binaryPath := filepath.Join("..", "..", "cmd", "accrual",
+		fmt.Sprintf("accrual_%s_%s", runtime.GOOS, runtime.GOARCH))
 	if runtime.GOOS == "windows" {
 		binaryPath += ".exe"
 	}
@@ -227,7 +228,7 @@ func seedAccrualServer(t *testing.T, address string) {
 
 	postJSON(t, client, baseURL+"/api/goods", map[string]any{
 		"match":       "Bork",
-		"reward":      10,
+		"reward":      1,
 		"reward_type": "%",
 	})
 
@@ -237,7 +238,7 @@ func seedAccrualServer(t *testing.T, address string) {
 			"goods": []map[string]any{
 				{
 					"description": "Чайник Bork",
-					"price":       7000,
+					"price":       7000.12,
 				},
 			},
 		})

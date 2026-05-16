@@ -130,6 +130,21 @@ func (mr *MockGophermartRepositoryMockRecorder) GetUserOrders(ctx, userID any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOrders", reflect.TypeOf((*MockGophermartRepository)(nil).GetUserOrders), ctx, userID)
 }
 
+// GetUserWithdrawals mocks base method.
+func (m *MockGophermartRepository) GetUserWithdrawals(ctx context.Context, userID int64) ([]domain.Withdrawal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserWithdrawals", ctx, userID)
+	ret0, _ := ret[0].([]domain.Withdrawal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserWithdrawals indicates an expected call of GetUserWithdrawals.
+func (mr *MockGophermartRepositoryMockRecorder) GetUserWithdrawals(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithdrawals", reflect.TypeOf((*MockGophermartRepository)(nil).GetUserWithdrawals), ctx, userID)
+}
+
 // Ping mocks base method.
 func (m *MockGophermartRepository) Ping(ctx context.Context) error {
 	m.ctrl.T.Helper()
@@ -253,6 +268,21 @@ func (m *MockGophemartService) GetUserOrders(ctx context.Context, userID int64) 
 func (mr *MockGophemartServiceMockRecorder) GetUserOrders(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserOrders", reflect.TypeOf((*MockGophemartService)(nil).GetUserOrders), ctx, userID)
+}
+
+// GetUserWithdrawals mocks base method.
+func (m *MockGophemartService) GetUserWithdrawals(ctx context.Context, userID int64) ([]domain.Withdrawal, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserWithdrawals", ctx, userID)
+	ret0, _ := ret[0].([]domain.Withdrawal)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserWithdrawals indicates an expected call of GetUserWithdrawals.
+func (mr *MockGophemartServiceMockRecorder) GetUserWithdrawals(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserWithdrawals", reflect.TypeOf((*MockGophemartService)(nil).GetUserWithdrawals), ctx, userID)
 }
 
 // LoginUser mocks base method.
