@@ -10,7 +10,7 @@
 package mocks
 
 import (
-	context "context"
+	"context"
 	reflect "reflect"
 
 	domain "github.com/Vla8islav/gophemart/internal/domain"
@@ -22,6 +22,11 @@ type MockGophermartRepository struct {
 	ctrl     *gomock.Controller
 	recorder *MockGophermartRepositoryMockRecorder
 	isgomock struct{}
+}
+
+func (m *MockGophermartRepository) GetUserWithdrawals(ctx context.context.Context, userID int64)  ([]Withdrawal, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 // MockGophermartRepositoryMockRecorder is the mock recorder for MockGophermartRepository.

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Vla8islav/gophemart/internal/config"
+	"github.com/Vla8islav/gophemart/internal/domain"
 	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
