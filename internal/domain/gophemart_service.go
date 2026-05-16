@@ -8,7 +8,11 @@ type GophemartService interface {
 	Ping(ctx context.Context) error
 	CreateUser(ctx context.Context, request UserRegisterRequest) (*AuthResult, error)
 	LoginUser(ctx context.Context, request UserLoginRequest) (*AuthResult, error)
+
 	GetUserBalance(ctx context.Context, userID int64) (*UserBalance, error)
+	WithdrawFromUserBalance(ctx context.Context, userID int64,
+		request UserBalanceWithdraw) error
+
 	CreateOrder(ctx context.Context, userID int64, orderNumber string) error
 	GetUserOrders(ctx context.Context, userID int64) ([]UserOrder, error)
 

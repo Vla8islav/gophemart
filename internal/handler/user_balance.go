@@ -74,5 +74,4 @@ func (h *Handler) UserBalanceHandler(w http.ResponseWriter, r *http.Request) {
 		h.writeInternalServerError(w, "couldn't write response"+err.Error())
 		return
 	}
-
 }

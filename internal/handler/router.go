@@ -25,7 +25,7 @@ func NewRouter(h *Handler, cfg *config.OptionsServer) http.Handler {
 		r.Get("/api/user/orders", h.UserOrdersGetHandler)
 
 		r.Get("/api/user/balance", h.UserBalanceHandler)
-		r.Post("/api/user/balance/withdraw", h.DummyHandler)
+		r.Post("/api/user/balance/withdraw", h.UserBalanceWithdrawHandler)
 		r.Get("/api/user/withdrawals", h.DummyHandler)
 	})
 
