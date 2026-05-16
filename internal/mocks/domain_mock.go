@@ -158,6 +158,20 @@ func (mr *MockGophermartRepositoryMockRecorder) UpdateOrders(ctx, updates any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrders", reflect.TypeOf((*MockGophermartRepository)(nil).UpdateOrders), ctx, updates)
 }
 
+// WithdrawFromUserBalance mocks base method.
+func (m *MockGophermartRepository) WithdrawFromUserBalance(ctx context.Context, userID int64, request domain.UserBalanceWithdraw) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithdrawFromUserBalance", ctx, userID, request)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WithdrawFromUserBalance indicates an expected call of WithdrawFromUserBalance.
+func (mr *MockGophermartRepositoryMockRecorder) WithdrawFromUserBalance(ctx, userID, request any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawFromUserBalance", reflect.TypeOf((*MockGophermartRepository)(nil).WithdrawFromUserBalance), ctx, userID, request)
+}
+
 // MockGophemartService is a mock of GophemartService interface.
 type MockGophemartService struct {
 	ctrl     *gomock.Controller
@@ -296,6 +310,20 @@ func (m *MockGophemartService) StartAccrualPolling(ctx context.Context) error {
 func (mr *MockGophemartServiceMockRecorder) StartAccrualPolling(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartAccrualPolling", reflect.TypeOf((*MockGophemartService)(nil).StartAccrualPolling), ctx)
+}
+
+// WithdrawFromUserBalance mocks base method.
+func (m *MockGophemartService) WithdrawFromUserBalance(ctx context.Context, userID int64, request domain.UserBalanceWithdraw) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithdrawFromUserBalance", ctx, userID, request)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WithdrawFromUserBalance indicates an expected call of WithdrawFromUserBalance.
+func (mr *MockGophemartServiceMockRecorder) WithdrawFromUserBalance(ctx, userID, request any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawFromUserBalance", reflect.TypeOf((*MockGophemartService)(nil).WithdrawFromUserBalance), ctx, userID, request)
 }
 
 // MockGophermartAccrualClient is a mock of GophermartAccrualClient interface.

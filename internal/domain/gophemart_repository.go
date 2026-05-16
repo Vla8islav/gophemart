@@ -15,5 +15,5 @@ type GophermartRepository interface {
 	GetActiveOrders(ctx context.Context) ([]UserOrder, error)
 	UpdateOrders(ctx context.Context, updates []UpdateOrderParams) error
 	WithdrawFromUserBalance(ctx context.Context, userID int64,
-		request UserBalanceWithdrawRequest) error
+		request UserBalanceWithdraw) error
 }

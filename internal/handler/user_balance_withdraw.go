@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"math"
 	"mime"
 	"net/http"
 
@@ -80,12 +81,14 @@ func (h *Handler) UserBalanceWithdrawHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if requestBodySerialised.Sum <= 0 {
+	sumCents := int64(math.Round(requestBodySerialised.Sum * 100))
+	if sumCents <= 0 {
 		h.writeUnprocessableEntity(w, "sum must be positive")
 		return
 	}
 
-	err = h.service.WithdrawFromUserBalance(r.Context(), userID, requestBodySerialised)
+	err = h.service.WithdrawFromUserBalance(r.Context(), userID,
+		domain.UserBalanceWithdraw{Sum: sumCents, Order: requestBodySerialised.Order})
 
 	if err != nil {
 

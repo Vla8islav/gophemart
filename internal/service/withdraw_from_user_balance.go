@@ -8,7 +8,7 @@ import (
 )
 
 func (m gophermartService) WithdrawFromUserBalance(ctx context.Context, userID int64,
-	request domain.UserBalanceWithdrawRequest) error {
+	request domain.UserBalanceWithdraw) error {
 
 	if request.Sum <= 0 {
 		return domain.ErrInvalidSum

@@ -11,7 +11,7 @@ type GophemartService interface {
 
 	GetUserBalance(ctx context.Context, userID int64) (*UserBalance, error)
 	WithdrawFromUserBalance(ctx context.Context, userID int64,
-		request UserBalanceWithdrawRequest) error
+		request UserBalanceWithdraw) error
 
 	CreateOrder(ctx context.Context, userID int64, orderNumber string) error
 	GetUserOrders(ctx context.Context, userID int64) ([]UserOrder, error)

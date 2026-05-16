@@ -9,7 +9,7 @@ import (
 )
 
 func (s *PostgresStorage) WithdrawFromUserBalance(ctx context.Context,
-	userID int64, request domain.UserBalanceWithdrawRequest) error {
+	userID int64, request domain.UserBalanceWithdraw) error {
 
 	return s.withRetryTx(ctx,
 		func(tx *sql.Tx) error { return s.withdrawMoneyTx(ctx, tx, userID, request) },
@@ -17,19 +17,19 @@ func (s *PostgresStorage) WithdrawFromUserBalance(ctx context.Context,
 }
 
 func (s *PostgresStorage) withdrawMoneyTx(ctx context.Context,
-	tx *sql.Tx, userID int64, request domain.UserBalanceWithdrawRequest) error {
+	tx *sql.Tx, userID int64, request domain.UserBalanceWithdraw) error {
 
 	// Postgres conditional insert black magic
 	query := `
 		INSERT INTO withdrawals (user_id, order_number, amount, processed_at)
 		SELECT $1, $2, $3, now()
 		WHERE (
-			SELECT COALESCE(SUM(accrual), 0)
+			SELECT COALESCE(SUM(accrual), 0)::bigint
 			FROM orders
 			WHERE user_id = $1
 			  AND status = 'PROCESSED'
 		) - (
-			SELECT COALESCE(SUM(amount), 0)
+			SELECT COALESCE(SUM(amount), 0)::bigint
 			FROM withdrawals
 			WHERE user_id = $1
 		) >= $3;
